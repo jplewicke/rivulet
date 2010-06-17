@@ -1,4 +1,4 @@
-#!/usr/bin/env /Users/jplewicke/payitsideways/VIRTENV/bin/jython
+#!/usr/bin/env /Users/jplewicke/rivulet/VIRTENV/bin/jython
 # EASY-INSTALL-SCRIPT: 'pip==0.7.1','pip'
 __requires__ = 'pip==0.7.1'
 import pkg_resources
