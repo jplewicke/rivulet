@@ -1,5 +1,9 @@
 require "neo4j"
 
+Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/dbneo'
+Lucene::Config[:storage_path] = '/Users/jplewicke/rivulet/dblucene'
+Lucene::Config[:store_on_file] = true
+
 class Asset ; end
 
 class Offer
