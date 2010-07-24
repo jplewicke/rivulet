@@ -17,53 +17,51 @@ end
 
 
 
-asset_urls = ["http://jplewicke.com/hours", 
-  "http://silviogesell.com/hours",
-  "http://henrygeorge.com/hours",
-  "http://spiderman.com/hours",
-  "http://batman.com/hours",
-  "http://robin.com/hours",
-  "http://joker.com/hours",
-  "http://catwoman.com/hours",
-  "http://patrickhenry.com/hours",
-  "http://aynrand.com/hours",
-  "http://johnstossel.com/hours",
-  "http://robertpaine.com/hours",
-  "http://rogersherman.com/hours",
-  "http://johnhancock.com/hours",
-  "http://oliverwolcott.com/hours",
-  "http://johnpenn.com/hours",
-  "http://lymanhall.com/hours",
-  "http://josiahbartlett.com/hours",
-  "http://georgewashington.com/hours",
-  "http://thomasjefferson.com/hours",
-  "http://samadams.com/hours",
-  "http://benfranklin.com/hours"]
-
-Neo4j::Transaction.run do
+asset_urls = ["jplewicke", 
+  "silviogesell",
+  "henrygeorge",
+  "spiderman",
+  "batman",
+  "robin",
+  "joker",
+  "catwoman",
+  "patrickhenry",
+  "aynrand",
+  "johnstossel",
+  "robertpaine",
+  "rogersherman",
+  "johnhancock",
+  "oliverwolcott",
+  "johnpenn",
+  "lymanhall",
+  "josiahbartlett",
+  "georgewashington",
+  "thomasjefferson",
+  "samadams",
+  "benfranklin"]
   
-  assets = asset_urls.collect {|a| Asset.new :url => a }
-  
-  
-  #jpl_seeking_sg = Offer.new :quantity => 20.0
- # jpl_seeking_sg.seeking = sg_hours
-#  jpl_seeking_sg.offering = jpl_hours
-  
- # hg_sk_pp
-  
-  
-  500.times do
-    new_offer = Offer.new :quantity => rand(40) + 1
-    s = assets[rand(assets.size)]
-    o = s
-    o = assets[rand(assets.size)] until o != s
-    new_offer.seeking = s
-    new_offer.offering = o
-  end
-  
-  
-  
-  #puts jpl_seeking_sg.offering.methods
-  #puts jpl_hours.methods
+25000.times do |i|
+  asset_urls[i] = "Asset_#{i}$"
 end
 
+assets = []
+
+Neo4j::Transaction.run do
+  assets = asset_urls.collect {|a| Asset.new :url => a }
+end
+
+50.times do |j|
+  puts j
+  Neo4j::Transaction.run do
+    25000.times do |i|
+        new_offer = Offer.new :quantity => rand(40) + 1
+        j = rand(assets.size - 400)
+        k = j + rand(500) - 300
+        s = assets[j]
+        o = s
+        o = assets[k + rand(3)] until o != s
+        new_offer.seeking = s
+        new_offer.offering = o
+    end
+  end
+end

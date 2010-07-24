@@ -74,16 +74,23 @@ def augmenting_path(offered,sought)
   
   visiting = [{:obj => offered, :pred => nil}]
   
-  visiting.each do |node|
-    if node[:obj] == sought
+  while (node = visiting.shift)
+    puts "________________"
+    discovered.each {|url| puts "Seen %s" % url}
+    puts "Currently about to visit %s" % url(node)
+    visiting.each {|n| puts "Still visiting %s" % url(n)}
+    puts "++++++++++++++"
+    
+    if url(node) === sought.url
+      puts "FOUUUUUUUND"
       return node
     else
       found = bfs_step(node, discovered)
       discovered = discovered | found.collect {|n| url(n)}
-      discovered.each {|url| puts url}
-      puts "________________"
-      
+      visiting = visiting + found
     end
+      discovered.each {|url| puts "Seen %s" % url}
+      visiting.each {|n| puts "Still visiting %s" % url(n)}
   end
 end
   
@@ -125,26 +132,6 @@ Neo4j::Transaction.run do
   
   puts augmenting_path(sg_hours, jpl_hours)
   
+  
 end
-
 return
-
-threads = []
-
-1.times { |j|
-  threads << Thread.new(j) { |k|
-    i = 1
-
-    for a in asset_urls do
-      i = find_asset(a, i)
-      puts "Executing thread #{k}, waiting #{i} seconds."
-      sleep(i)
-    end
-    puts "sleeping for 7 seconds at the end"
-    sleep(3)
-    puts "done sleeping"
-    sleep(2)
-  }
-}
-
-threads.each { |aThread|   aThread.join }
