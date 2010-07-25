@@ -39,29 +39,37 @@ asset_urls = ["jplewicke",
   "thomasjefferson",
   "samadams",
   "benfranklin"]
-  
-25000.times do |i|
+
+asset_urls = []
+60000.times do |i|
   asset_urls[i] = "Asset_#{i}$"
 end
 
 assets = []
 
 Neo4j::Transaction.run do
-  assets = asset_urls.collect {|a| Asset.new :url => a }
+  assets = asset_urls.collect {|a| Asset.new :url => a}
 end
 
-50.times do |j|
+
+  
+
+480.times do |j|
   puts j
   Neo4j::Transaction.run do
-    25000.times do |i|
+    a = assets.sort_by { rand }
+    b = assets.sort_by { rand } 
+    5000.times do |i|
+        s = a[i]
+        o = b[i]
+        while (s == o)
+          o = b[rand(10)]
+        end
         new_offer = Offer.new :quantity => rand(40) + 1
-        j = rand(assets.size - 400)
-        k = j + rand(500) - 300
-        s = assets[j]
-        o = s
-        o = assets[k + rand(3)] until o != s
         new_offer.seeking = s
         new_offer.offering = o
+        new_offer.offering.rels.outgoing(:tradable_for) << new_offer
+        new_offer.rels.outgoing(:tradable_for) << s
     end
   end
 end

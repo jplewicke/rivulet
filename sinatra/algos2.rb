@@ -2,7 +2,9 @@ require 'classes'
 require 'set'
 require 'benchmark'
 require 'jruby-prof'
-
+require 'Neo4j'
+require 'neo4j/extensions/graph_algo'
+require 'neo4j/extensions/find_path'
 
 Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/dbneo'
 
@@ -104,9 +106,16 @@ def augmenting_path(offered,sought)
     discovered.merge(found)
     visiting.merge(found)
   end
-  return nil
+  return []
 end
-  
+
+def aug_path(offered, sought)
+  puts offered.class
+  puts  sought.class
+  res = offered.traverse.outgoing(:tradable_for).depth(5).path_to(sought).to_a
+  puts res.class
+  return res
+end
 
 asset_urls = ["jplewicke", 
   "silviogesell",
@@ -132,9 +141,7 @@ asset_urls = ["jplewicke",
   "benfranklin"]
   
   
-25000.times do |i|
-  asset_urls[i] = "Asset_#{i}$"
-end
+
 
 # max_flow()
 
@@ -148,26 +155,43 @@ jpl_hours2 = find_asset(asset_urls[0])
 assets = Array.new
 
 Neo4j::Transaction.run do
-  25000.times do |i|
+  60000.times do |i|
+    asset_urls[i] = "Asset_#{i}$"
     assets[i] = find_asset(asset_urls[i])
   end
 end
 
-10.time do |i|
-  total = 0.0
+
+
+
+
+
+result = JRubyProf.profile do
+  bftotal = 0.0
+  n4total = 0.0
   num = 0.0
-  Neo4j::Transaction.run do
-    j = rand(assets.size - 400)
-    k = j + rand(500) - 300
-    s = assets[j]
-    o = s
-    o = assets[k + rand(3)] until o != s
-    num += 1
-    total += Benchmark.realtime {
-     puts urls2(augmenting_path(s, o).to_a.reverse) }
- end
- puts total / num
-end    
+  10.times do |i|
+    Neo4j::Transaction.run do
+      a = assets.sort_by {rand}
+      s = a[0]
+      o = a[1]
+      #puts s.class
+      #puts o.class
+      num += 1
+      bfst = 9
+      #bfst = Benchmark.realtime {
+      # puts urls2(augmenting_path(s, o).to_a.reverse) }
+      n4jt = Benchmark.realtime {
+        res = urls2(aug_path(s, o).to_a.reverse) }
+      bftotal += bfst
+      n4total += n4jt
+      puts "BFS took #{bfst}, Neo4j native took #{n4jt}"
+   end
+  end
+  puts bftotal / num     
+  puts n4total / num 
+end
+JRubyProf.print_graph_html(result, "graph.html")
 
 return
 
