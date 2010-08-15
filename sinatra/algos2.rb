@@ -6,7 +6,6 @@ require 'Neo4j'
 require 'neo4j/extensions/graph_algo'
 require 'neo4j/extensions/find_path'
 
-Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/dbneo'
 
 
 def urls(enum)
@@ -110,10 +109,10 @@ def augmenting_path(offered,sought)
 end
 
 def aug_path(offered, sought)
-  puts offered.class
-  puts  sought.class
+  #puts offered.class
+  #puts  sought.class
   res = offered.traverse.outgoing(:tradable_for).depth(5).path_to(sought).to_a
-  puts res.class
+  #puts res.class
   return res
 end
 
@@ -144,7 +143,7 @@ asset_urls = ["jplewicke",
 
 
 # max_flow()
-
+num_nodes = 100000
 
 sg_hours = find_asset(asset_urls[1])
 jpl_hours = find_asset(asset_urls[0])
@@ -155,7 +154,7 @@ jpl_hours2 = find_asset(asset_urls[0])
 assets = Array.new
 
 Neo4j::Transaction.run do
-  60000.times do |i|
+  num_nodes.times do |i|
     asset_urls[i] = "Asset_#{i}$"
     assets[i] = find_asset(asset_urls[i])
   end
@@ -169,15 +168,15 @@ end
 result = JRubyProf.profile do
   bftotal = 0.0
   n4total = 0.0
-  num = 0.0
-  10.times do |i|
+  num = 300
+  num.times do |i|
     Neo4j::Transaction.run do
+      puts i
       a = assets.sort_by {rand}
       s = a[0]
       o = a[1]
       #puts s.class
       #puts o.class
-      num += 1
       bfst = 9
       #bfst = Benchmark.realtime {
       # puts urls2(augmenting_path(s, o).to_a.reverse) }
@@ -185,11 +184,14 @@ result = JRubyProf.profile do
         res = urls2(aug_path(s, o).to_a.reverse) }
       bftotal += bfst
       n4total += n4jt
-      puts "BFS took #{bfst}, Neo4j native took #{n4jt}"
+      #puts "BFS took #{bfst}, Neo4j native took #{n4jt}"
    end
   end
-  puts bftotal / num     
+  puts bftotal / num   
+  puts ""
+  puts "Average time:"  
   puts n4total / num 
+  puts ""
 end
 JRubyProf.print_graph_html(result, "graph.html")
 

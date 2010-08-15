@@ -42,11 +42,15 @@ end
 
 
 Neo4j::Transaction.run do
-  #res = Neo4j::GraphAlgo.all_simple_paths.from(assets[40]).to(assets[43]).depth(13).incoming(:tradable_for)
+  res = Neo4j::GraphAlgo.all_simple_paths.from(assets[40]).to(assets[43]).depth(13).both("Offer#seeking","Asset#offered_by")
   # asp = org.neo4j.graphalgo.AllSimplePaths.new(assets[0]._java_node, assets[1]._java_node,11)
   #res.each {|p| puts urls2(p.to_a.reverse)}
+  
+  puts urls2(res.first.to_a.reverse)
 #  puts asp.class
   #puts assets[1]._java_node.class
-  
-  puts assets[40].traverse.outgoing(:tradable_for).depth(13).path_to(assets[43])
+  #puts assets[40].rels.public_methods
+  #puts assets[40].rels.class
+  puts assets[40].incoming(:all).to_a
+  #puts assets[40].traverse.outgoing(:tradable_for).depth(13).path_to(assets[43])
 end

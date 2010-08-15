@@ -1,6 +1,5 @@
 require "classes"
 
-Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/dbneo'
 
 
 
@@ -40,8 +39,11 @@ asset_urls = ["jplewicke",
   "samadams",
   "benfranklin"]
 
+num_nodes = 100000
+num_edges = 20
+
 asset_urls = []
-60000.times do |i|
+num_nodes.times do |i|
   asset_urls[i] = "Asset_#{i}$"
 end
 
@@ -54,16 +56,20 @@ end
 
   
 
-480.times do |j|
+a = assets.sort_by { rand }
+len = assets.length
+num_nodes.times do |j|
   puts j
   Neo4j::Transaction.run do
-    a = assets.sort_by { rand }
-    b = assets.sort_by { rand } 
-    5000.times do |i|
-        s = a[i]
-        o = b[i]
+    if j % 20 == 0
+      a = assets.sort_by { rand } 
+    end
+    num_edges.times do |i|
+        k = rand(num_nodes - num_edges * 2 - 2)
+        s = a[i + k]
+        o = a[i + k + 1]
         while (s == o)
-          o = b[rand(10)]
+          o = a[rand(10)]
         end
         new_offer = Offer.new :quantity => rand(40) + 1
         new_offer.seeking = s

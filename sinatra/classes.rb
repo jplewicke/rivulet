@@ -1,8 +1,10 @@
 require "neo4j"
 
-Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/dbneo'
-Lucene::Config[:storage_path] = '/Users/jplewicke/rivulet/dblucene'
+Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/sinatra/dbneo'
+Lucene::Config[:storage_path] = '/Users/jplewicke/rivulet/sinatra/dblucene'
 Lucene::Config[:store_on_file] = true
+num_nodes = 600
+
 
 class Asset ; end
 
