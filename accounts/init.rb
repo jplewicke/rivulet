@@ -1,4 +1,4 @@
-require "classes"
+require "app_classes"
 
 num_nodes = 200
 num_edges_per = 10
@@ -29,15 +29,18 @@ num_nodes.times do |j|
     end
     num_edges_per.times do |i|
         k = rand(num_nodes - num_edges_per * 2 - 2)
-        s = a[i + k]
-        o = a[i + k + 1]
-        while (s == o)
-          o = a[rand(10)]
+        dest = a[i + k]
+        source = a[i + k + 1]
+        while (dest == source)
+          source = a[rand(10)]
         end
-        rel = o.trusts.new(s)
-        rel.max_credit_offered = rand(10) + 1
-        rel.max_credit_desired = rand(10) + 1
-        rel.credit_used = 0
+        
+        rel = CreditRelationship.new(source, dest)
+        source_offer = rel.source_offer
+        source_offer.max_offered += 1.0
+        source_offer.max_desired += 1.0
+        
+        rel.save!()
     end
   end
 end
