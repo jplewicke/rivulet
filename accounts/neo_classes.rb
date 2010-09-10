@@ -33,7 +33,7 @@ end
 class User
   include Neo4j::NodeMixin
   
-  property :user_id
+  property :user_id, :depth
   #property :secret
   
   has_n(:trusts).relationship(CreditOffer)

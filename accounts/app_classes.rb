@@ -81,15 +81,41 @@ class CreditRelationship
     @source_offer.amount_used += credit_to_use
   end
   
+  def to_s
+    return %"#{@source.user_id} to #{@dest.user_id}: \t#{self.slack_givable} fr,\t #{self.slack_returnable} ra \t #{@source.activelytrusts.include?(@dest)} \t #{@dest.activelytrusts.include?(@source)}"
+  end
 end
 
 
 class CreditPath
-  attr_accessor :source, :dest
+  attr_accessor :source, :dest, :depth, :users, :credits
   
-  #Accepts either 
+  #Accepts either a User Neo4j object, or the user ID for a given user.
   def initialize(source, dest)
+    if source.class == User
+      @source = source
+    else
+      @source = User.fromid(source)
+    end
     
+    if dest.class == User
+      @dest = dest
+    else
+      @dest = User.fromid(dest)
+    end
+    
+    @depth = @source.depth
+    @users = []
+    @credits = []
+  end
+  
+  #Update paths.
+  def refresh!
+    @users = @source.traverse.outgoing(:activelytrusts).depth(@depth).path_to(@dest)
+    
+    @users = [] if @users.nil?
+    
+    @credits = @users.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
   end
 end
   

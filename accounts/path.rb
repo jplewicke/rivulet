@@ -2,14 +2,6 @@ require 'app_classes'
 require 'set'
 require 'benchmark'
 
-def find_user(id)
-ret = nil
-  Neo4j::Transaction.run do
-    result = User.find(:user_id => id)
-    result.each {|x| ret = x}
-  end
-return ret
-end
 
 def path_to_credits(users_path)
   if users_path == nil
@@ -19,9 +11,6 @@ def path_to_credits(users_path)
   end
 end
 
-def credit_format(c)
-  return "#{c.source.user_id} to #{c.dest.user_id}: \t#{c.slack_givable} fr,\t #{c.slack_returnable} ra \t #{c.source.activelytrusts.include?(c.dest)} \t #{c.dest.activelytrusts.include?(c.source)}"
-end
 
 
 num_nodes = 200
@@ -39,34 +28,26 @@ def find_all(num1, num2, users)
     path = []
     b = 0.0
     3.times do
-      #puts "start"
       path = users[num1].traverse.outgoing(:activelytrusts).depth(18).path_to(users[num2])
-      #puts res.collect {|u| u.user_id}
+      
       credits = path_to_credits(path)
     
       max_transfer = credits.collect {|a| a.slack_givable}.min
       
-      #b += max_transfer
       
       puts " +++++++++"
-      #puts credits.collect {|a| credit_format(a)}
-    
-      #puts credits
     
       credits.each do |c| 
         puts ""
-        puts credit_format(c)
+        puts c
         c.give!(max_transfer)
-        puts credit_format(c)
+        puts c
         c.save!
-        puts credit_format(c)
+        puts c
       end
     
       puts max_transfer
-    #  puts b
       puts " ---------++++++"
-      
-      #puts credits.collect {|a| credit_format(a)}
       
       
       puts "____________________________________________________________"
