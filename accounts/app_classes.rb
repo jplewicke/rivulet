@@ -92,6 +92,7 @@ class CreditPath
   
   #Accepts either a User Neo4j object, or the user ID for a given user.
   def initialize(source, dest)
+    puts "Source #{source}, s.c=#{source.class}\tDest #{dest}, d.c=#{dest.class}"
     if source.class == User
       @source = source
     else
@@ -111,11 +112,30 @@ class CreditPath
   
   #Update paths.
   def refresh!
+    puts "Depth #{@depth}"
     @users = @source.traverse.outgoing(:activelytrusts).depth(@depth).path_to(@dest)
     
     @users = [] if @users.nil?
     
     @credits = @users.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
+  end
+  
+  def save!
+    @credits.each {|c| c.save!}
+    puts @credits
+  end
+  
+  def transferable
+    @credits.collect {|c| c.slack_givable}.min
+  end
+  
+  def transfer!(amount)
+    @credits.each do |c| 
+      puts ""
+      puts c
+      c.give!(amount)
+      puts c
+    end
   end
 end
   

@@ -23,16 +23,19 @@ Neo4j::Transaction.run do
   end
 end
 
-def find_all(num1, num2, users)
+def find_all(num1, num2, list)
   Neo4j::Transaction.run do
     path = []
+    users = []
     b = 0.0
-    3.times do
-      path = users[num1].traverse.outgoing(:activelytrusts).depth(18).path_to(users[num2])
+    1.times do
+      path = CreditPath.new(list[num1], list[num2])
       
-      credits = path_to_credits(path)
+      path.refresh!
+      users = path.users
+      credits = path.credits
     
-      max_transfer = credits.collect {|a| a.slack_givable}.min
+      max_transfer = path.transferable
       
       
       puts " +++++++++"
@@ -52,7 +55,7 @@ def find_all(num1, num2, users)
       
       puts "____________________________________________________________"
     end
-    return path.to_a
+    return users.to_a
   end
 end
 
@@ -62,7 +65,7 @@ times = {}
 counts = {}
 res = 0
 
-20.times do |i|
+200.times do |i|
   counts[i] = 0
   times[i] = 0.0
 end
@@ -83,17 +86,14 @@ reps.times do |i|
 end
 puts ""
 
-return
-
-return
 puts "Average time:"
 puts tot / reps
 puts ""
 
-20.times do |i|
+8.times do |i|
   puts "Length #{i}: #{times[i] / counts[i]}"
 end
 
-20.times do |i|
+9.times do |i|
   puts "Count of length #{i}: #{counts[i]}"
 end
