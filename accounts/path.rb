@@ -1,15 +1,6 @@
 require 'app_classes'
-require 'set'
 require 'benchmark'
 
-
-def path_to_credits(users_path)
-  if users_path == nil
-    return []
-  else
-    return users_path.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
-  end
-end
 
 
 
@@ -24,39 +15,40 @@ Neo4j::Transaction.run do
 end
 
 def find_all(num1, num2, list)
-  Neo4j::Transaction.run do
-    path = []
-    users = []
-    b = 0.0
-    1.times do
+  path = []
+  users = []
+  b = 0.0
+  1.times do
+    Neo4j::Transaction.run do |t|
       path = CreditPath.new(list[num1], list[num2])
       
+      path.depth = 4
       path.refresh!
       users = path.users
-      credits = path.credits
-    
-      max_transfer = path.transferable
       
       
       puts " +++++++++"
-    
-      credits.each do |c| 
-        puts ""
-        puts c
-        c.give!(max_transfer)
-        puts c
-        c.save!
-        puts c
+      to_transfer = path.transferable
+      to_transfer = 1.0
+      amount = path.transfer!(to_transfer)
+      
+      path.save!
+      #Roll back on failure.
+      if amount < to_transfer
+        puts "FAILED"
+        t.failure
       end
-    
-      puts max_transfer
-      puts " ---------++++++"
-      
-      
-      puts "____________________________________________________________"
     end
-    return users.to_a
+  
+    puts " ---------++++++"
+    Neo4j::Transaction.run do |t|
+      puts users.to_a.collect {|u| u.user_id}
+    end
+    
+    puts "____________________________________________________________"
+    
   end
+  return users.to_a
 end
 
 tot = 0.0

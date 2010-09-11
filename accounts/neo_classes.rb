@@ -10,6 +10,26 @@ Lucene::Config[:store_on_file] = true
 #migration for ALL existing database data.  Changing the few helper methods we
 #have for them shouldn't have a similar impact, but it's best to be cautious here.
 
+
+
+#A CreditOffer is an offer by the source user to allow the destination user to owe
+#up to a specified number of units to the source user.
+#In double-entry book-keeping, the balance (amount_used + amount_held) of an outgoing
+#CreditOffer is the value of debits(assets) that the destination user has assured the
+#source user of.
+#The balance of an incoming CreditOffer is the value of credits(liabilities) that are
+#owed by the user.
+#The credit limits of an outgoing CreditOffer that are offered represent
+#the maximum number of debits that the source user is willing to accept from the
+#destination user. The max_desired debits is the maximum number of debits that the
+#destination user is willing to provide to the source user.
+#The debits that are in amount_held are counted against the current credit limits.
+#They are assumed to be reserved for repayment outside the credit network through
+#provision of some sort of real-world service or good.
+#The debits that are in amount_used are available for clearing the credits
+#of the source user.
+
+
 class CreditOffer
   include Neo4j::RelationshipMixin
   
@@ -20,7 +40,7 @@ class CreditOffer
   end
   
   def usable
-    return self.max - self.amount_used
+    return [self.max - self.amount_used - self.amount_held,0.0].max
   end
   
   def empty?
@@ -29,6 +49,9 @@ class CreditOffer
   end
 end
 
+
+#Each user is identified by a user_id and a secret, both assumed to be hashed values.
+#Each user has a default depth of transactions that they are limited to in the 
 
 class User
   include Neo4j::NodeMixin
@@ -47,7 +70,7 @@ class User
   def trustrel(dest)
     
     if self.trusts.include?(dest)
-      puts "yippee"
+      #puts "yippee"
       rel = self.rels.outgoing(:trusts)[dest]
     else
       rel = self.trusts.new(dest)

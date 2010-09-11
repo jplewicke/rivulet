@@ -1,7 +1,7 @@
 require "app_classes"
 
-num_nodes = 200
-num_edges_per = 10
+num_nodes = 500
+num_edges_per = 15
 
 
 user_ids = []

@@ -60,7 +60,7 @@ class CreditRelationship
     
     [@source_offer,@dest_offer].each do |o|
       if o.empty?
-        o.del
+        #o.del
         
       end
     end
@@ -81,14 +81,20 @@ class CreditRelationship
     @source_offer.amount_used += credit_to_use
   end
   
+  #Updates the amount @source is offering to @dest to be at least amount,
+  #and then debits that amount to @dest as a held balance.
+  def hold!(amount)
+    @source_offer.amount_held += amount
+  end
+  
   def to_s
-    return %"#{@source.user_id} to #{@dest.user_id}: \t#{self.slack_givable} fr,\t #{self.slack_returnable} ra \t #{@source.activelytrusts.include?(@dest)} \t #{@dest.activelytrusts.include?(@source)}"
+    return "#{@source.user_id} to #{@dest.user_id}: \t#{self.slack_givable} fr, \t #{self.slack_returnable} ra \t #{self.dest_offer.amount_held} dh \t #{self.source_offer.amount_held} sh \t #{@source.activelytrusts.include?(@dest)} \t #{@dest.activelytrusts.include?(@source)}"
   end
 end
 
 
 class CreditPath
-  attr_accessor :source, :dest, :depth, :users, :credits
+  attr_accessor :source, :dest, :depth, :users, :credits, :debit
   
   #Accepts either a User Neo4j object, or the user ID for a given user.
   def initialize(source, dest)
@@ -108,6 +114,7 @@ class CreditPath
     @depth = @source.depth
     @users = []
     @credits = []
+    @debit = CreditRelationship.new(@dest,@source)
   end
   
   #Update paths.
@@ -122,20 +129,55 @@ class CreditPath
   
   def save!
     @credits.each {|c| c.save!}
+    @debit.save!
     puts @credits
+    puts @debit
   end
   
+  #Maximum amount transferable over current path.
   def transferable
-    @credits.collect {|c| c.slack_givable}.min
+    amount = @credits.collect {|c| c.slack_givable}.min
+    amount = 0.0 if amount.nil?
+    return amount
   end
   
-  def transfer!(amount)
+  #Uses current path to transfer an incremental amount to dest.
+  def transfer_once!(amount)
+    if amount > self.transferable
+      raise "Excessive amount being transferred."
+    end
+    
     @credits.each do |c| 
-      puts ""
       puts c
       c.give!(amount)
-      puts c
     end
+    puts @debit
+    @debit.hold!(amount)
+    puts "Number of credits: #{@credits.length}"
+  end
+  
+  #Attempts to transfer the given amount, broken up over several incremental paths.
+  #In effect, this resembles the Edmonds-Karp BFS max-flow algorithm, but with
+  #early stopping once a certain amount is transferred.
+  #It returns the amount transferred, so that the transaction containing a call
+  #to this can be rolled back if an insufficient amount is transferred.
+  def transfer!(amount)
+    
+    self.refresh!
+    
+    amount_transferred = 0.0
+    while(self.transferable > 0.0 and amount_transferred < amount)
+      to_transfer = [self.transferable, amount - amount_transferred].min
+      self.transfer_once!(to_transfer)
+      amount_transferred += to_transfer
+      self.save!
+      self.refresh!
+      
+      puts "Transferred #{amount_transferred}"
+    end
+    puts "Can transfer #{self.transferable}"
+    
+    return amount_transferred
   end
 end
   
