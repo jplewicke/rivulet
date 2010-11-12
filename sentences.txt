@@ -1,0 +1,37 @@
+
+
+Credit line negotiation
+
+Alice says she will offer up to 10.0 in credit to Bob.
+Bob says he will go up to 9.5 in debt to Alice.
+
+
+Payments
+
+Alice would like to credit 4.0 to Bob immediately for work done or as a gift.
+
+Bob would like to reserve 5.5 in credit from Alice for work he plans to do for her.
+
+Alice would like to free up 3.0 in credit that was reserved for Bob, since she wasn't able to do the work.'
+
+Alice would like 
+
+
+
+Administration
+
+Alice would like to sign up for an account.
+Alice would like to change her password or to change some default preferences.
+
+
+Information
+
+Alice would like to know what her credit/debit balance is with everyone else.
+Alice wants to find out her balance with Bob.
+Alice wants to find out who has reserved credit from her.
+
+
+
+
+
+
