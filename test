@@ -1,2 +1,0 @@
-rm -r db*
-jruby rel_del_test.rb
