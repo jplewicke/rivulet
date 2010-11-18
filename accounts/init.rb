@@ -12,7 +12,7 @@ end
 users = []
 
 Neo4j::Transaction.run do
-  users = user_ids.collect {|a| User.new :user_id => a, :depth => 15, :password => "pw"}
+  users = user_ids.collect {|a| User.new :user_id => a, :depth => 15, :secret => "pw"}
   puts users
 end
 

@@ -1,0 +1,21 @@
+require "sinatra"
+require "neo_classes"
+
+#Throws a 401 if the provided credentials don't match at least one of the enumerated users.
+def protected!(user_ids)
+  unless user_ids.any? {|user_id| authorized?(user_id) }
+    response['WWW-Authenticate'] = %(Basic realm="Rivulet")
+    throw(:halt, [401, "Not authorized\n"])
+  end
+end
+
+def authorized?(user_id)
+  user_creds = User.creds_from_id(user_id)
+  @auth ||=  Rack::Auth::Basic::Request.new(request.env)
+  @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == user_creds
+end
+
+def authed_user(user_ids)
+  user = user_ids.detect {|uid| authorized?(uid)}
+end
+  

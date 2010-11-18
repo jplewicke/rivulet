@@ -1,23 +1,43 @@
-require "app_classes"
+require "json"
 require "sinatra"
 
-get '/accounts' do
-  #Returns account information for all accounts.
+require "app_classes"
+require "auth"
+require "parse"
+
+get '/accounts/:payor' do |payor|
+  Neo4j::Transaction.run do |t|
+    auth_list = [payor]
+    protected!(auth_list)
+    {:user => authed_user(auth_list), :depth => User.fromid(authed_user(auth_list)).depth}.to_json
+  end
 end
 
 post '/accounts' do
-  #Create account for new user.
+  Neo4j::Transaction.run do |t|
+    
+    if params["user"] != nil && params["secret"] != nil && User.fromid(params["user"]) == nil
+      #Create account for new user.
+      user = User.new :user_id => params["user"], :depth => 15, :secret => params["secret"]
+    else
+      throw(:halt, [403, "Not authorized\n"])
+    end
+  end
 end
 
-post '/credits/:name' do |name|
-  #Someone is attempting to change a credit line extended by #{name}.
+post '/credits/:lender' do |lender| 
+  Neo4j::Transaction.run do |t|
+    protected!([lender, params["to"]])
+    parses!(params)
+    #Someone is attempting to change a credit line extended by #{name}.
   
-  #If they authenticate as #{name}, then we parse their request to see to whom 
-  #they'd like to extend credit, and how much they'd like to.
+    #If they authenticate as #{name}, then we parse their request to see to whom 
+    #they'd like to extend credit, and how much they'd like to.
   
-  #If they authenticate as someone else, we make sure they match the user identified
-  #in the request.  Other users are allowed to set the maximum amount they'd like to
-  #borrow from #{name}.
+    #If they authenticate as someone else, we make sure they match the user identified
+    #in the request.  Other users are allowed to set the maximum amount they'd like to
+    #borrow from #{name}.
+  end
 end
 
 post '/transactions/:payor' do |payor|

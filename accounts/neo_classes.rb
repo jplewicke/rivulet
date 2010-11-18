@@ -93,6 +93,19 @@ class User
       raise "No such user found."
     end
     return ret
+  rescue
+    nil
   end
-
+  
+  def self.creds_from_id(user_id)
+    user = self.fromid(user_id)
+    unless user.nil?
+      return user.credentials
+    end
+    nil
+  end
+  
+  def credentials
+    return [self.user_id, self.secret]
+  end
 end
