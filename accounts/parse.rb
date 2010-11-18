@@ -24,6 +24,21 @@ def parses!(params)
 end
 
 
+def get_neo_users(source_id, dest_id) 
+  #One cannot grant credit to oneself.
+  if source_id == dest_id
+    throw(:halt, [400, "Cannot grant credit to oneself.\n"])
+  end
+  
+  source = User.fromid(source_id)
+  dest = User.fromid(dest_id)
+  
+  if (source == nil || dest == nil)
+      throw(:halt, [500, "Error finding user in Neo4j after authentication.\n"])
+  end
+  return [source, dest]
+end
+
 def numeric?(str)
   true if Float(str) rescue false
 end

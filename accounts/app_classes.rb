@@ -1,6 +1,7 @@
 require 'neo_classes'
 require 'neo4j/extensions/graph_algo'
 require 'neo4j/extensions/find_path'
+require 'json'
 
 #Various classes that provide an abstract way of managing the flow of credit between
 #a source and a destination user.  
@@ -61,6 +62,7 @@ class CreditRelationship
     [@source_offer,@dest_offer].each do |o|
       if o.empty?
         #o.del
+        #TODO: commented out since this causes problems with output after saving.
         
       end
     end
@@ -89,6 +91,21 @@ class CreditRelationship
   
   def to_s
     return "#{@source.user_id} to #{@dest.user_id}: \t#{self.slack_givable} fr, \t #{self.slack_returnable} ra \t #{self.dest_offer.amount_held} dh \t #{self.source_offer.amount_held} sh \t #{@source.activelytrusts.include?(@dest)} \t #{@dest.activelytrusts.include?(@source)}"
+  end
+  
+  def to_json
+     return {
+       :from => @source.user_id,
+       :to => @dest.user_id,
+       :credit_accepted => @source_offer.max_desired,
+       :credit_offered => @source_offer.max_offered,
+       :debit_accepted => @dest_offer.max_desired,
+       :debit_offered => @dest_offer.max_offered,
+       :max_credit_line => self.slack_givable,
+       :max_debit_line => self.slack_returnable,
+       :credit_held => self.source_offer.amount_held,
+       :debit_held => self.dest_offer.amount_held,
+       :net_owed => (self.source_offer.amount_used - self.dest_offer.amount_used) }.to_json
   end
 end
 
