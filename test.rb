@@ -28,13 +28,24 @@ class RoutesTest < Test::Unit::TestCase
   end
   
   def test_acct_creation
-    post '/accounts', {:user => "User_#{rand(7000)+1000}", :secret => "pw"}, {}
+    id = "User_#{rand(7000)+1000}"
+    post '/accounts', {:user => id, :secret => "pw"}, {}
     assert_equal 200, last_response.status
+    assert_equal id, JSON.parse(last_response.body)['user']
+    assert_equal 8, JSON.parse(last_response.body)['depth']
   end
   
   def test_acct_noncreation
     post '/accounts', {:user => "User_200", :secret => "pw"}, {}
     assert_equal 403, last_response.status
+  end
+  
+  def test_acct_creation_depth
+    id = "User_#{rand(7000)+1000}"
+    post '/accounts', {:user => id, :secret => "pw", :depth => 5}, {}
+    assert_equal 200, last_response.status
+    assert_equal id, JSON.parse(last_response.body)['user']
+    assert_equal 5, JSON.parse(last_response.body)['depth']
   end
   
   def test_credit_extension_parsefailure_nonnumeric
@@ -86,21 +97,58 @@ class RoutesTest < Test::Unit::TestCase
     assert_equal 401, last_response.status
   end
   
-  def test_credit_extension_parsefailure_nonnumeric
+  def test_payment_parsefailure_nonnumeric
     post '/transactions/User_433', {:to => "User_446", :amount => "dinosaur"}, cred(433)
     assert_equal 400, last_response.status
   end
 
-  def test_credit_extension_parsefailure_tomissing
+  def test_payment_parsefailure_tomissing
     post '/transactions/User_433', {:user_id => "User_446", :amount => "4.5"}, cred(433)
     assert_equal 400, last_response.status
   end
 
-  def test_credit_extension_parsefailure_amountmissing
+  def test_payment_parsefailure_amountmissing
     post '/transactions/User_433', {:user_id => "User_446"}, cred(433)
     assert_equal 400, last_response.status
   end
   
+  def test_hold_auth_failure
+      post '/transactions/User_233/held', {:to => "User_246", :amount => 1.0}, bad_cred()
+      assert_equal 401, last_response.status
+  end
+  
+  def test_hold_success
+    
+  end
+  
+  def test_hold_success2
+    
+  end
+  
+  def test_hold_parse_nonnumeric
+    post '/transactions/User_183/held', {:to => "User_326", :amount => "dinosaur"}, cred(183)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_hold_parse_tomissing
+    post '/transactions/User_183/held', {:amount => "3.5"}, cred(183)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_hold_parse_amountmissing
+    post '/transactions/User_183/held', {:to => "User_326"}, cred(183)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_hold_parse_nonnegative
+    post '/transactions/User_183/held', {:to => "User_326", :amount => "-1.5"}, cred(183)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_hold_parse_positive
+    post '/transactions/User_183/held', {:to => "User_326", :amount => "0"}, cred(183)
+    assert_equal 400, last_response.status
+  end
   def test_comprehensive
     src_id = rand(100000) + 10000
     dest_id = src_id + 1

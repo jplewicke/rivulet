@@ -1,5 +1,5 @@
-require "sinatra"
-require "neo_classes"
+#require "sinatra"
+#require "neo_classes"
 require "json"
 
 # All OpenTransact asset manipulation functions should include the following fields:
@@ -41,4 +41,14 @@ end
 
 def numeric?(str)
   true if Float(str) rescue false
+end
+
+def posinteger?(str)
+  if Integer(str) > 0  
+    true
+  else 
+    false 
+  end
+  rescue 
+    false
 end

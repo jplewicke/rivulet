@@ -17,8 +17,14 @@ post '/accounts/?' do
   Neo4j::Transaction.run do |t|
     if params["user"] != nil && params["secret"] != nil && User.fromid(params["user"]) == nil
      
+      depth = 8
+      if params["depth"] != nil && posinteger?(params["depth"])
+        depth = Integer(params["depth"])
+      end
       #Create account for new user.
-      user = User.new :user_id => params["user"], :depth => 15, :secret => params["secret"]
+      user = User.new :user_id => params["user"], :depth => depth, :secret => params["secret"]
+      
+      {:user => user.user_id, :depth => user.depth}.to_json
     else
       throw(:halt, [403, "Not authorized\n"])
     end
@@ -107,10 +113,33 @@ post '/transactions/:payor/held/?' do |payor|
     payee = params["to"]
     protected!([payor, payee])
     parses!(params)
+    source, dest = get_neo_users(payor, payee)
+    requested_by = authed_user([payor, payee])
+    
     #If we can properly authenticate the issuer of this request as either payor or
     #payee, we will accumulate the requested amount of credit from payor to payee
     #by debiting payor's existing credit lines.
     
+    path = CreditPath.new(source, dest)
+    path.depth = source.depth
+    to_transfer = params["amount"]
+    amount = path.transfer!(to_transfer)
+
+    rel = CreditRelationship.new(source, dest)
+
+    #Roll back on failure.
+    if amount < to_transfer || rel.dest_offer.amount_held < to_transfer
+      t.failure
+      throw(:halt, [403, "Insufficient number of credits to transfer.\n"])
+    end
+    
+    #Since the default method for transferring credits accumulates the resulting credit
+    #to the payee as a reserved amount, we need to clear that hold and store this transaction
+    #before we can complete it.
+    
+    puts rel.to_json
+    puts "\n"
+    rel.to_json
     
   end
 end
@@ -119,6 +148,8 @@ post '/transactions/:payor/held/:payee/?' do |payor, payee|
   Neo4j::Transaction.run do |t|
     protected!([payor])
     parses!(params)
+    source, dest = get_neo_users(payor, payee)
+    
     #Release part of a held credit balance as payment or a gift.
     #Request must have been authorized by payor.
   end
