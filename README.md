@@ -27,9 +27,11 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 1. Install [JRuby](http://www.jruby.org/).  (You need this instead of regular Ruby since Rivulet uses the Java graph database [Neo4j](http://neo4j.org), and hence runs on the JVM. This also makes Rivulet unsuitable for running on Heroku.)
 
 2. Download a copy of Rivulet to a working directory using git:
+
 `git clone https://github.com/jplewicke/rivulet.git`
 
 3. Install [bundler](http://gembundler.com/):
+
 `sudo jruby -S gem install bundler`
 
 
