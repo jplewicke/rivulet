@@ -22,7 +22,7 @@ Rivulet is a **simple RESTful web service**, so it's easy to integrate with your
 
 ## Installation
 
-Rivulet runs on the Ruby web framework Sinatra.  Since it uses the Java graph database Neo4j, it requires JRuby.
+1. Install [JRuby](http://www.jruby.org/)
 
 ## License
 
