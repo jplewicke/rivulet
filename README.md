@@ -22,7 +22,7 @@ Rivulet is a **simple RESTful web service**, so it's easy to integrate with your
 
 ## Installation
 
-1. Install [JRuby](http://www.jruby.org/)
+1. Install [JRuby](http://www.jruby.org/).  (You need this instead of regular Ruby since Rivulet uses the Java graph database [Neo4j](http://neo4j.org), and hence runs on the JVM. This also makes Rivulet unsuitable for running on Heroku.)
 
 ## License
 
