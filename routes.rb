@@ -9,9 +9,31 @@ get '/accounts/:payor/?' do |payor|
   Neo4j::Transaction.run do |t|
     auth_list = [payor]
     protected!(auth_list)
-    {:user => authed_user(auth_list), :depth => User.fromid(authed_user(auth_list)).depth}.to_json
+    User.fromid(payor).to_json
   end
 end
+
+# Accepts an option to= parameter for the
+get '/credits/:lender' do |lender|
+  lendee = params["to"]
+  if lendee != nil
+    auth_list = [lender,lendee]
+  else
+    auth_list = [lender]
+  end
+  
+  protected!(auth_list)
+  requested_by = authed_user(auth_list)
+  
+  if requested_by == lendee || params["to"] != nil
+    source, dest = get_neo_users(lender, lendee)
+    CreditRelationship.new(source,dest).to_json
+  else
+    source = User.fromid(lender)
+    puts source.trusts
+  end
+end
+
 
 post '/accounts/?' do
   Neo4j::Transaction.run do |t|
@@ -21,10 +43,10 @@ post '/accounts/?' do
       if params["depth"] != nil && posinteger?(params["depth"])
         depth = Integer(params["depth"])
       end
+      
       #Create account for new user.
       user = User.new :user_id => params["user"], :depth => depth, :secret => params["secret"]
-      
-      {:user => user.user_id, :depth => user.depth}.to_json
+      user.to_json
     else
       throw(:halt, [403, "Not authorized\n"])
     end
@@ -62,8 +84,8 @@ post '/credits/:lender/?' do |lender|
     rel.save!()
     {:from => lender, :to => lendee, :credit_offered => source_offer.max_offered, :credit_accepted => source_offer.max_desired}.to_json
 
-    puts rel.to_json
-    puts "\n"
+    #puts rel.to_json
+    #puts "\n"
     rel.to_json
   end
 end
@@ -85,25 +107,16 @@ post '/transactions/:payor/?' do |payor|
     #sufficient number of credits can be transferred.
     
     path = CreditPath.new(source, dest)
-    path.depth = source.depth
     to_transfer = params["amount"]
-    amount = path.transfer!(to_transfer)
-
-    rel = CreditRelationship.new(source, dest)
-
-    #Roll back on failure.
-    if amount < to_transfer || rel.dest_offer.amount_held < to_transfer
-      t.failure
-      throw(:halt, [403, "Insufficient number of credits to transfer.\n"])
-    end
+    amount, rel = path.transfer_rollback!(to_transfer,t)
     
     #Since the default method for transferring credits accumulates the resulting credit
     #to the payee as a reserved amount, we need to clear that hold and store this transaction
     #before we can complete it.
     
     rel.dest_offer.amount_held -= to_transfer
-    puts rel.to_json
-    puts "\n"
+    #puts rel.to_json
+    #puts "\n"
     rel.to_json
   end
 end
@@ -121,36 +134,48 @@ post '/transactions/:payor/held/?' do |payor|
     #by debiting payor's existing credit lines.
     
     path = CreditPath.new(source, dest)
-    path.depth = source.depth
     to_transfer = params["amount"]
-    amount = path.transfer!(to_transfer)
-
-    rel = CreditRelationship.new(source, dest)
-
-    #Roll back on failure.
-    if amount < to_transfer || rel.dest_offer.amount_held < to_transfer
-      t.failure
-      throw(:halt, [403, "Insufficient number of credits to transfer.\n"])
-    end
+    amount, rel = path.transfer_rollback!(to_transfer,t)
     
-    #Since the default method for transferring credits accumulates the resulting credit
-    #to the payee as a reserved amount, we need to clear that hold and store this transaction
-    #before we can complete it.
-    
-    puts rel.to_json
-    puts "\n"
+    #puts rel.to_json
+    #puts "\n"
     rel.to_json
-    
   end
 end
 
+#Release part of a held credit balance as payment or a gift.
 post '/transactions/:payor/held/:payee/?' do |payor, payee|
   Neo4j::Transaction.run do |t|
     protected!([payor])
     parses!(params)
     source, dest = get_neo_users(payor, payee)
     
-    #Release part of a held credit balance as payment or a gift.
-    #Request must have been authorized by payor.
+    rel = CreditRelationship.new(source, dest)
+    can_transfer = rel.dest_offer.amount_held
+    to_transfer = params["amount"]
+    
+    if can_transfer < to_transfer
+      throw(:halt, [403, "Insufficient reserved balance."])
+    else
+      rel.dest_offer.amount_held -= to_transfer
+      rel.to_json
+    end
   end
 end
+
+#Should have an option to DELETE a held credit balance.
+
+# Accepts an option to= parameter for the 
+get '/transactions/:payor/?' do |payor|
+  throw(:halt, [500, "not implemented yet"])
+end
+
+get '/transactions/:payor/held/?' do |payor|
+  throw(:halt, [500, "not implemented yet"])
+end
+
+# Accepts an option to= parameter for the
+get '/credits/:payor' do |payor|
+  throw(:halt, [500, "not implemented yet"])
+end
+

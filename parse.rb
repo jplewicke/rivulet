@@ -1,5 +1,4 @@
-#require "sinatra"
-#require "neo_classes"
+require "neo_classes"
 require "json"
 
 # All OpenTransact asset manipulation functions should include the following fields:
@@ -9,15 +8,19 @@ require "json"
 # transaction.
 def parses!(params)
   if params["to"] == nil
-    throw(:halt, [400, "\"to\" field required by OpenTransact protocol\n"])
+    throw(:halt, [400, "\"to\" field required by OpenTransact protocol.\n"])
   end
   
   if params["amount"] == nil
-    throw(:halt, [400, "\"amount\" field required by OpenTransact protocol\n"])
+    throw(:halt, [400, "\"amount\" field required by OpenTransact protocol.\n"])
   end
   
   unless numeric?(params["amount"])
-    throw(:halt, [400, "\"amount\" field must be a number in OpenTransact\n"])
+    throw(:halt, [400, "\"amount\" field must be a number in OpenTransact.\n"])
+  end
+  
+  unless Float(params["amount"]) > 0.0
+    throw(:halt, [400, "\"amount\" field must be greater than 0 in OpenTransact.\n"])
   end
   
   params["amount"] = Float(params["amount"])
@@ -34,7 +37,7 @@ def get_neo_users(source_id, dest_id)
   dest = User.fromid(dest_id)
   
   if (source == nil || dest == nil)
-      throw(:halt, [500, "Error finding user in Neo4j after authentication.\n"])
+      throw(:halt, [400, "Error finding user in Neo4j.\n"])
   end
   return [source, dest]
 end

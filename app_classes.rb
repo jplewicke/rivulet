@@ -68,6 +68,10 @@ class CreditRelationship
     end
   end
   
+  def empty?
+    [@source_offer,@dest_offer].all? { |o| o.empty? }
+  end
+    
   #Transfers amount from @source to @dest.
   
   def give!(amount)
@@ -115,7 +119,7 @@ class CreditPath
   
   #Accepts either a User Neo4j object, or the user ID for a given user.
   def initialize(source, dest)
-    puts "Source #{source}, s.c=#{source.class}\tDest #{dest}, d.c=#{dest.class}"
+    #puts "Source #{source}, s.c=#{source.class}\tDest #{dest}, d.c=#{dest.class}"
     if source.class == User
       @source = source
     else
@@ -136,7 +140,7 @@ class CreditPath
   
   #Update paths.
   def refresh!
-    puts "Depth #{@depth}"
+    #puts "Depth #{@depth}"
     @users = @source.traverse.outgoing(:activelytrusts).depth(@depth).path_to(@dest)
     
     @users = [] if @users.nil?
@@ -147,8 +151,8 @@ class CreditPath
   def save!
     @credits.each {|c| c.save!}
     @debit.save!
-    puts @credits
-    puts @debit
+    #puts @credits
+    #puts @debit
   end
   
   #Maximum amount transferable over current path.
@@ -165,12 +169,12 @@ class CreditPath
     end
     
     @credits.each do |c| 
-      puts c
+      #puts c
       c.give!(amount)
     end
-    puts @debit
+    #puts @debit
     @debit.hold!(amount)
-    puts "Number of credits: #{@credits.length}"
+    #puts "Number of credits: #{@credits.length}"
   end
   
   #Attempts to transfer the given amount, broken up over several incremental paths.
@@ -190,11 +194,26 @@ class CreditPath
       self.save!
       self.refresh!
       
-      puts "Transferred #{amount_transferred}"
+      #puts "Transferred #{amount_transferred}"
     end
-    puts "Can transfer #{self.transferable}"
+    #puts "Can transfer #{self.transferable}"
     
     return amount_transferred
   end
+  
+  def transfer_rollback!(to_transfer,t)
+    amount = self.transfer!(to_transfer)
+
+    rel = CreditRelationship.new(@source, @dest)
+
+    #Roll back on failure.
+    if amount < to_transfer || rel.dest_offer.amount_held < to_transfer
+      t.failure
+      throw(:halt, [403, "Insufficient number of credits to transfer.\n"])
+    end
+    
+    [amount,rel]
+  end
+  
 end
   

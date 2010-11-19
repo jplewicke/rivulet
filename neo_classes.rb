@@ -108,4 +108,15 @@ class User
   def credentials
     return [self.user_id, self.secret]
   end
+  
+  def to_json
+    {
+      :user => self.user_id,
+      :depth => self.depth,
+      :account_url => "/accounts/#{self.user_id}",
+      :credit_url => "/credits/#{self.user_id}",
+      :transaction_url => "/transactions/#{self.user_id}",
+      :reservation_url => "/transactions/#{self.user_id}/held"
+    }.to_json
+  end
 end

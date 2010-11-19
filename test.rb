@@ -28,10 +28,15 @@ class RoutesTest < Test::Unit::TestCase
   end
   
   def test_acct_creation
-    id = "User_#{rand(7000)+1000}"
-    post '/accounts', {:user => id, :secret => "pw"}, {}
+    i = rand(7000)+1000
+    uid = "User_#{i}"
+    post '/accounts', {:user => uid, :secret => "pw"}, {}
     assert_equal 200, last_response.status
-    assert_equal id, JSON.parse(last_response.body)['user']
+    assert_equal uid, JSON.parse(last_response.body)['user']
+    assert_equal 8, JSON.parse(last_response.body)['depth']
+    get "/accounts/#{uid}", {}, cred(i)
+    assert_equal 200, last_response.status
+    assert_equal uid, JSON.parse(last_response.body)['user']
     assert_equal 8, JSON.parse(last_response.body)['depth']
   end
   
@@ -41,11 +46,19 @@ class RoutesTest < Test::Unit::TestCase
   end
   
   def test_acct_creation_depth
-    id = "User_#{rand(7000)+1000}"
-    post '/accounts', {:user => id, :secret => "pw", :depth => 5}, {}
+    i = rand(7000)+1000
+    uid = "User_#{i}"
+    get "/accounts/#{uid}", {}, cred(i)
+    assert_equal 401, last_response.status
+    post '/accounts', {:user => uid, :secret => "pw", :depth => 5}, {}
     assert_equal 200, last_response.status
-    assert_equal id, JSON.parse(last_response.body)['user']
+    assert_equal uid, JSON.parse(last_response.body)['user']
     assert_equal 5, JSON.parse(last_response.body)['depth']
+    get "/accounts/#{uid}", {}, cred(i)
+    assert_equal 200, last_response.status
+    assert_equal uid, JSON.parse(last_response.body)['user']
+    assert_equal 5, JSON.parse(last_response.body)['depth']
+    #Could also test that correct URLs are returned.
   end
   
   def test_credit_extension_parsefailure_nonnumeric
@@ -60,6 +73,16 @@ class RoutesTest < Test::Unit::TestCase
 
   def test_credit_extension_parsefailure_amountmissing
     post '/credits/User_133', {:user_id => "User_134"}, cred(133)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_credit_ext_parse_nonnegative
+    post '/credits/User_383/', {:to => "User_326", :amount => "-1.5"}, cred(383)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_credit_ext_parse_positive
+    post '/credits/User_383/', {:to => "User_326", :amount => "0"}, cred(383)
     assert_equal 400, last_response.status
   end
   
@@ -111,6 +134,16 @@ class RoutesTest < Test::Unit::TestCase
     post '/transactions/User_433', {:user_id => "User_446"}, cred(433)
     assert_equal 400, last_response.status
   end
+
+  def test_payment_parse_nonnegative
+    post '/transactions/User_67', {:to => "User_326", :amount => "-1.5"}, cred(67)
+    assert_equal 400, last_response.status
+  end
+  
+  def test_payment_parse_positive
+    post '/transactions/User_34', {:to => "User_326", :amount => "0"}, cred(34)
+    assert_equal 400, last_response.status
+  end
   
   def test_hold_auth_failure
       post '/transactions/User_233/held', {:to => "User_246", :amount => 1.0}, bad_cred()
@@ -149,6 +182,7 @@ class RoutesTest < Test::Unit::TestCase
     post '/transactions/User_183/held', {:to => "User_326", :amount => "0"}, cred(183)
     assert_equal 400, last_response.status
   end
+  
   def test_comprehensive
     src_id = rand(100000) + 10000
     dest_id = src_id + 1
@@ -164,6 +198,12 @@ class RoutesTest < Test::Unit::TestCase
     post "/credits/User_#{src_id}", {:to => "User_#{dest_id}", :amount => amt}, cred(src_id)
     assert_equal 200, last_response.status
     assert_equal amt, JSON.parse(last_response.body)['credit_offered']
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(src_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_offered']
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(dest_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_offered']
     
     #Verify inability to for src to grant a credit of 5.0 to dest.
     amt = 5.0
@@ -176,11 +216,20 @@ class RoutesTest < Test::Unit::TestCase
     assert_equal 200, last_response.status
     assert_equal amt, JSON.parse(last_response.body)['credit_accepted']
     
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(src_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_accepted']
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(dest_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_accepted']
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(79)
+    assert_equal 401, last_response.status
+    
     #Use part of the credit line.
     amt = 4.0
     post "/transactions/User_#{src_id}", {:to => "User_#{dest_id}", :amount => amt}, cred(src_id)
     assert_equal 200, last_response.status
-    puts last_response.body
+    #puts last_response.body
     assert_equal 4.0, JSON.parse(last_response.body)['max_credit_line']
     assert_equal 4.0, JSON.parse(last_response.body)['max_debit_line']
     assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
@@ -196,6 +245,21 @@ class RoutesTest < Test::Unit::TestCase
     assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
     assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
     
+    
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(dest_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_accepted']
+    assert_equal 6.0, JSON.parse(last_response.body)['max_credit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
+    assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
+    
+    get "/credits/User_#{src_id}", {:to => "User_#{dest_id}"}, cred(src_id)
+    assert_equal 200, last_response.status
+    assert_equal amt, JSON.parse(last_response.body)['credit_accepted']
+    assert_equal 6.0, JSON.parse(last_response.body)['max_credit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
+    assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
+    
     #Give back that 4.0 of credit.
     amt = 4.0
     post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => amt}, cred(dest_id)
@@ -205,6 +269,39 @@ class RoutesTest < Test::Unit::TestCase
     assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
     assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
     
+    
+    get "/credits/User_#{dest_id}", {:to => "User_#{src_id}"}, cred(src_id)
+    assert_equal 200, last_response.status
+    assert_equal 10.0, JSON.parse(last_response.body)['max_debit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['max_credit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
+    assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
+    get "/credits/User_#{dest_id}", {:to => "User_#{src_id}"}, cred(dest_id)
+    assert_equal 200, last_response.status
+    assert_equal 10.0, JSON.parse(last_response.body)['max_debit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['max_credit_line']
+    assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
+    assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
+    
+    
+    #Reserve some of that there credit.
+    amt = 3.0
+    post "/transactions/User_#{src_id}/held", {:to => "User_#{dest_id}", :amount => amt}, cred(dest_id)
+    assert_equal 200, last_response.status
+    puts last_response.body
+    #assert_equal 0.0, JSON.parse(last_response.body)['max_debit_line']
+    assert_equal 7.0, JSON.parse(last_response.body)['max_credit_line']
+    #assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
+    #assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
+    
+    # Should fail
+    post "/transactions/User_#{src_id}", {:to => "User_#{dest_id}", :amount => 8.0}, cred(src_id)
+    assert_equal 403, last_response.status
+    
+    post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => 2.0}, cred(dest_id)
+    
+    puts last_response.body
+    assert_equal 403, last_response.status
     
   end
     
