@@ -29,7 +29,9 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 2. Download a copy of Rivulet to a working directory using git:
 `git clone https://github.com/jplewicke/rivulet.git`
 
-3. Install
+3. Install [bundler](http://gembundler.com/):
+`sudo jruby -S gem install bundler`
+
 
 ## License
 
