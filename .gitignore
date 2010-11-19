@@ -3,3 +3,5 @@ clean
 .old
 index_old.rb
 Gemfile.lock
+log
+tmp
