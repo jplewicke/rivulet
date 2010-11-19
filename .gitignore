@@ -1,3 +1,5 @@
 db*
 clean
-old
+.old
+index_old.rb
+Gemfile.lock

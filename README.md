@@ -2,7 +2,7 @@
 
 Rivulet is a simple webservice that allows people to **pay** each other with **IOUs** and **promises**, _even if_ the people making a trade don't know or trust each other. If you want to pay a stranger, it searches both of your social **trust networks** for a sequence of **mutual acquaintances** to vouch for you by extension.
 
-Rivulet is a simplified version of Ryan Fugger's [Ripple Monetary System](http://ripple-project.org "Ripple").  It's intended to be plugged into existing websites, and doesn't support exchange rates, multiple units of account charging interest or demurrage, or ship with much of a user interface.
+Rivulet is a simplified version of Ryan Fugger's [Ripple Monetary System](http://ripple-project.org).  It's intended to be plugged into existing websites, and doesn't support exchange rates, multiple units of account charging interest or demurrage, or ship with much of a user interface.
 
 If you're looking for a simple way for your users to trade babysitting sessions, car rides, books or CDs, or even to replace money, you've found the right github repo.
 
@@ -32,6 +32,18 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 3. Install [bundler](http://gembundler.com/):
 `sudo jruby -S gem install bundler`
 
+4. Install all of Rivulet's other dependencies:
+`jruby -S bundle install`
+
+4. Run the unit tests to make sure that most stuff is working on your system:
+`jruby -S bundle exec test.rb`  .  Since the OpenTransact asset reservations aren't working completely, you should expect the last couple tests to fail.
+
+5. Start the server:
+`jruby -S bundle exec routes.rb`
+
+## Using Rivulet
+
+To create a user account, simply post 
 
 ## License
 
