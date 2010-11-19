@@ -1,6 +1,6 @@
 # Rivulet
 
-Rivulet is a simple webservice that allows people to pay each other with IOUs and promises, even if the people making a trade don't know or trust each other. If you want to pay a stranger, it searches both of your social trust networks for a sequence of mutual acquaintances to vouch for you by extension.
+Rivulet is a simple webservice that allows people to **pay** each other with **IOUs** and **promises**, _even if_ the people making a trade don't know or trust each other. If you want to pay a stranger, it searches both of your social trust networks for a sequence of mutual acquaintances to vouch for you by extension.
 
 Rivulet is a simplified version of Ryan Fugger's [Ripple Monetary System](http://ripple-project.org "Ripple").  It's intended to be plugged into existing websites, and doesn't support exchange rates, multiple units of account charging interest or demurrage, or ship with much of a user interface.
 
