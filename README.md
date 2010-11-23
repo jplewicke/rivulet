@@ -37,7 +37,7 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 5. Install all of Rivulet's other dependencies:
 `jruby -S bundle install`
 
-6. Set up some test data for Rivulet's test suite: `jruby bundle exec test_init.rb`
+6. Set up some test data for Rivulet's test suite: `jruby -S bundle exec test_init.rb` .  This will create 500 users(User\_0 - User\_499) with random credit relationships.
 
 7. Run the unit tests to make sure that most stuff is working on your system:
 `jruby -S bundle exec test.rb`  .  Since the OpenTransact asset reservations aren't working completely, you should expect the last couple tests to fail.
