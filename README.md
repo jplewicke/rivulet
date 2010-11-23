@@ -43,7 +43,7 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 
 ## Using Rivulet
 
-To create a user account, simply post 
+You'll probably want to reference either routes.rb or test.rb to see some examples of how to communicate with Rivulet from the command line.
 
 ## License
 
