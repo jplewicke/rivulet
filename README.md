@@ -51,7 +51,7 @@ You'll probably want to reference either routes.rb or test.rb to see some exampl
 
 ## Updating Rivulet
 
-
+You can update your copy of Rivulet's source code by running `git pull origin master`.  Since the Neo4j database schema isn't stable yet, you will want to avoid doing this for anything that modifies neo_classes.rb .  I'll be linking to a better guide to contributing patches and such with git as soon as I find one.
 
 ## License
 
