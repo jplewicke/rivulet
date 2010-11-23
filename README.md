@@ -32,18 +32,26 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 3. Install [bundler](http://gembundler.com/):
 `sudo jruby -S gem install bundler`
 
-4. Install all of Rivulet's other dependencies:
+4. Change directories to the directory that Rivulet is installed in.
+
+5. Install all of Rivulet's other dependencies:
 `jruby -S bundle install`
 
-4. Run the unit tests to make sure that most stuff is working on your system:
+6. Set up some test data for Rivulet's test suite: `jruby bundle exec test_init.rb`
+
+7. Run the unit tests to make sure that most stuff is working on your system:
 `jruby -S bundle exec test.rb`  .  Since the OpenTransact asset reservations aren't working completely, you should expect the last couple tests to fail.
 
-5. Start the server:
+8. Start the server:
 `jruby -S bundle exec routes.rb`
 
 ## Using Rivulet
 
 You'll probably want to reference either routes.rb or test.rb to see some examples of how to communicate with Rivulet from the command line.
+
+## Updating Rivulet
+
+
 
 ## License
 

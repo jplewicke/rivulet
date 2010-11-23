@@ -1,7 +1,7 @@
 require 'Neo4j'
 
-Neo4j::Config[:storage_path] = '/Users/jplewicke/rivulet/accounts/dbneo'
-Lucene::Config[:storage_path] = '/Users/jplewicke/rivulet/accounts/dblucene'
+Neo4j::Config[:storage_path] = "#{Dir.pwd}/dbneo"
+Lucene::Config[:storage_path] = "#{Dir.pwd}/dblucene"
 Lucene::Config[:store_on_file] = true
 
 
