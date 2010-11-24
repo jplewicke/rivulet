@@ -1,4 +1,4 @@
-require 'Neo4j'
+require 'neo4j'
 
 Neo4j::Config[:storage_path] = "#{Dir.pwd}/dbneo"
 Lucene::Config[:storage_path] = "#{Dir.pwd}/dblucene"

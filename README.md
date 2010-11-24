@@ -30,12 +30,12 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 `git clone https://github.com/jplewicke/rivulet.git`
 
 3. Install [bundler](http://gembundler.com/):
-`sudo jruby -S gem install bundler`
+`sudo jruby -S gem install bundler`   If your version of rubygems is not up-to-date, you can run `sudo jruby -S gem update`.  You may need to follow the steps outlined [here](http://forums.aptana.com/viewtopic.php?t=7652) to update a really old version.
 
-4. Change directories to the directory that Rivulet is installed in.
+4. Change directories to the directory that Rivulet was downloaded into.
 
 5. Install all of Rivulet's other dependencies:
-`jruby -S bundle install`
+`sudo jruby -S bundle install`
 
 6. Set up some test data for Rivulet's test suite: `jruby -S bundle exec test_init.rb` .  This will create 500 users(User\_0 - User\_499) with random credit relationships.
 
