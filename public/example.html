@@ -1,0 +1,98 @@
+<HTML>
+<HEAD>
+<TITLE>Rivulet User Interface</TITLE>
+<SCRIPT type="text/javascript" src="jquery.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="jquery.layout.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="jquery.ui.all.js"></SCRIPT>
+<SCRIPT type="text/javascript" src="actions.js"></SCRIPT>
+<SCRIPT type="text/javascript">
+var myLayout;  
+var curr_action;
+$(document).ready(function () {
+	myLayout = $('body').layout({ applyDefaultStyles: true });
+	
+	$("a").click(function(event){
+     alert("As you can see, the link no longer took you to jquery.com");
+     event.preventDefault();
+   });
+	myLayout.toggle("east");
+	myLayout.toggle("south");
+	myLayout.sizePane("west",150);
+	
+	
+	$("#commands > li").click(function(event){
+	myLayout.open("east");
+	$("#actionLabel").val(actions[this.id]["label"]);
+	curr_action=actions[this.id];
+     event.preventDefault();
+   });
+	
+	$("#actionLabel").click(function(event){
+		alert(actions[curr_action]);
+		return true;
+		$("#resultTextArea").val(curr_action);
+		req = $.ajax({
+			username: $("#username").val(),
+			password: $("#password").val(),
+			url: actions[curr_action]["uri"]($("#username").val())
+			
+			});
+		myLayout.close("east");
+	});
+
+
+
+	
+});
+</SCRIPT>
+</HEAD>
+<BODY>
+<DIV class="ui-layout-center">Center
+	<P><A href="http://layout.jquery-dev.net/demos.html">Go to the Demos page</A></P>
+	<textarea width="7" height="8" id="resultTextArea"></textarea>
+</DIV>
+<DIV class="ui-layout-north"><form action="">
+    <div><label for="username">User:</label>
+    <input type="text" name="username" value="" id="username" title="Username" /><br />
+   	<label for="password">Password:</label>
+    <input type="text" name="password" value="" id="password" title="Password" />
+    </div>
+</form>
+</DIV>
+<DIV class="ui-layout-south">South</DIV>
+<DIV class="ui-layout-east" id="test3">
+	
+	 <label for="amount">Amount:</label>
+	 <input type="text" name="amount" value="0.0" id="amount" title="Amount"  style="width:40px"/><br />
+	
+	<label for="to">To:</label>
+	<input type="text" name="to" value="" id="to" title="Destination"  style="width:100px"/>
+	<input type="button" id="actionLabel" value="Submit">
+	
+</DIV> 
+	
+<DIV class="ui-layout-west" ><h3>Commands</h3>
+	<ul id="commands">
+		<li id="make_credit_offer">
+			<button>Make Credit Offer</button>
+		</li>
+		<li id="accept_credit_offer">
+			<button>Accept Credit Offer</button>
+		</li>
+		<li id="make_payment">
+			<button>Make Payment</button>
+		</li>
+		<li id="make_reserved_payment">
+			<button>Make Reserved Payment</button>
+		</li>
+		<li id="request_payment">
+			<button>Request Payment</button>
+		</li>
+		<li id="view_credit_balance">
+			<button onclick="action=0">View Credit Balance</button>
+		</li>
+		
+	</ul>
+</DIV>
+</BODY>
+</HTML>
