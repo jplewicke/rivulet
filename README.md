@@ -45,7 +45,7 @@ So far, Rivulet has been successfully run on OS X and Ubuntu 10.10/10.4. It shou
 8. Start the server:
 `jruby -S bundle exec routes.rb`
 
-9. Try Rivulet's client by opening up [http://localhost:4567/main.html](http://localhost:4567/main.html) in your web browser(only tested on Firefox so far).
+9. Try Rivulet's client by opening up [http://localhost:4567/](http://localhost:4567/) in your web browser(only tested on Firefox so far).
 
 ## Using Rivulet
 

@@ -9,6 +9,11 @@ require "app_classes"
 require "auth"
 require "parse"
 
+get '/' do
+  File.read(File.join('public', 'index.html'))
+end
+
+
 get '/accounts/:payor/?' do |payor|
   Neo4j::Transaction.run do |t|
     auth_list = [payor]
