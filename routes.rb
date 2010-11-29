@@ -18,23 +18,25 @@ get '/accounts/:payor/?' do |payor|
 end
 
 # Accepts an option to= parameter for the
-get '/credits/:lender' do |lender|
-  lendee = params["to"]
-  if lendee != nil
-    auth_list = [lender,lendee]
-  else
-    auth_list = [lender]
-  end
+get '/credits/:lender/?' do |lender|
+  Neo4j::Transaction.run do |t|
+    lendee = params["to"]
+    if lendee != nil
+      auth_list = [lender,lendee]
+    else
+      auth_list = [lender]
+    end
   
-  protected!(auth_list)
-  requested_by = authed_user(auth_list)
+    protected!(auth_list)
+    requested_by = authed_user(auth_list)
   
-  if requested_by == lendee || params["to"] != nil
-    source, dest = get_neo_users(lender, lendee)
-    CreditRelationship.new(source,dest).to_json
-  else
-    source = User.fromid(lender)
-    puts source.trusts
+    if requested_by == lendee || params["to"] != nil
+      source, dest = get_neo_users(lender, lendee)
+      CreditRelationship.new(source,dest).to_json
+    else
+      source = User.fromid(lender)
+      puts source.trusts
+    end
   end
 end
 
