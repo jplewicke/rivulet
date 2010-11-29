@@ -62,6 +62,8 @@ end
 post '/credits/:lender/?' do |lender| 
   Neo4j::Transaction.run do |t|
     lendee = params["to"]
+    puts lender
+    puts lendee
     protected!([lender, lendee])
     parses!(params)
     source, dest = get_neo_users(lender, lendee)

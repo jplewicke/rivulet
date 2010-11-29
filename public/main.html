@@ -25,15 +25,28 @@ var curr_action;
 $(document).ready(function () {
 	myLayout = $('body').layout({ applyDefaultStyles: true });
 	
-	$("a").click(function(event){
-     alert("As you can see, the link no longer took you to jquery.com");
-     event.preventDefault();
-   });
 	myLayout.toggle("east");
 	myLayout.toggle("south");
 	myLayout.sizePane("west",150);
 	
-	
+	$("#createUser").click(function(event) {
+		req = $.ajax({
+			url: "/accounts/",
+			type: "POST",
+			data: {
+					user: $("#username").val(),
+					secret: $("#password").val()
+				},
+			success: function(data, textStatus, xhr) {
+					$("#resultTextArea").val(data);
+					myLayout.close("east");
+				},
+			error: function(xhr, textStatus, errorThrown) {
+				alert("Error: " + xhr.responseText);
+			}
+   		});
+	});
+		
 	$("#commands > li").click(function(event){
 	myLayout.open("east");
 	curr_action=actions[this.id];
@@ -45,13 +58,15 @@ $(document).ready(function () {
 		
 	    var header = "Basic " + $.base64Encode($("#username").val() + ":" + $("#password").val());
 	    document.cookie = "Authorization=" + header;
+		orig_data = {
+			to: $("#to").val(),
+			amount: $("#amount").val()
+			};
+		fnl_data = curr_action.ovr_data(orig_data,$("#username").val());
 		req = $.ajax({
 			url: curr_action.uri($("#username").val(), $("#to").val()),
 			type: curr_action.meth,
-			data: {
-				to: $("#to").val(),
-				amount: $("#amount").val()
-				},
+			data: fnl_data,
 			beforeSend: function(xhr) {
 			            xhr.setRequestHeader("Authorization", getAuthCookie());
 			        },
@@ -81,7 +96,7 @@ $(document).ready(function () {
 	<P>If 
 		
 	<P>The JSON results returned from Rivulet are displayed below. I'm currently working on making them work better within the user interface.</P>
-	<textarea cols="50" rows="10" id="resultTextArea"></textarea>
+	<textarea cols="67" rows="10" id="resultTextArea"></textarea>
 </DIV>
 <DIV class="ui-layout-north"><form action="">
     <div><label for="username">User:</label>

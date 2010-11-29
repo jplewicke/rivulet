@@ -12,13 +12,6 @@ end
 def authorized?(user_id)
   user_creds = User.creds_from_id(user_id)
   @auth ||=  Rack::Auth::Basic::Request.new(request.env)
-  puts "user_id: #{user_id}"
-  puts "auth.provided? #{@auth.provided?}"
-  puts "auth.basic? #{@auth.basic?}"
-  puts "auth.credentials[0]: #{@auth.credentials[0]}"
-  puts "auth.credentials[1]: #{@auth.credentials[1]}"
-  puts "user_creds[0]: #{user_creds}"
-  #puts "user_creds[1]: #{user_creds[1]}"
   @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == user_creds
 end
 

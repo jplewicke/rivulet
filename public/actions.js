@@ -47,3 +47,17 @@ actions["make_reserved_payment"].meth = "POST"
 actions["request_payment"].meth = "POST"
 actions["view_credit_balance"].meth = "GET"
 
+noDataChange = function(orig_data, curr_user) { 
+    
+    return orig_data 
+};
+actions["make_credit_offer"].ovr_data = noDataChange;
+actions["accept_credit_offer"].ovr_data = function (orig_data, curr_user) {
+  return {
+      to: curr_user,
+      amount: orig_data["amount"]};
+};
+actions["make_payment"].ovr_data = noDataChange;
+actions["make_reserved_payment"].ovr_data = noDataChange;
+actions["request_payment"].ovr_data = noDataChange;
+actions["view_credit_balance"].ovr_data = noDataChange;
