@@ -62,8 +62,6 @@ end
 post '/credits/:lender/?' do |lender| 
   Neo4j::Transaction.run do |t|
     lendee = params["to"]
-    puts lender
-    puts lendee
     protected!([lender, lendee])
     parses!(params)
     source, dest = get_neo_users(lender, lendee)
@@ -103,7 +101,7 @@ post '/transactions/:payor/?' do |payor|
     protected!([payor])
     parses!(params)
     payee = params["to"]
-    source, dest = get_neo_users(payor, payee)
+    source, dest = get_neo_users(payee, payor)
     
     #This is an attempt to pay someone other than #{payor} by crediting the payee
     #through the credit network.  Since this will place #{payor} in debt to someone who
@@ -134,7 +132,7 @@ post '/transactions/:payor/held/?' do |payor|
     payee = params["to"]
     protected!([payor, payee])
     parses!(params)
-    source, dest = get_neo_users(payor, payee)
+    source, dest = get_neo_users(payee, payor)
     requested_by = authed_user([payor, payee])
     
     #If we can properly authenticate the issuer of this request as either payor or
@@ -156,7 +154,7 @@ post '/transactions/:payor/held/:payee/?' do |payor, payee|
   Neo4j::Transaction.run do |t|
     protected!([payor])
     parses!(params)
-    source, dest = get_neo_users(payor, payee)
+    source, dest = get_neo_users(payee, payor)
     
     rel = CreditRelationship.new(source, dest)
     can_transfer = rel.dest_offer.amount_held

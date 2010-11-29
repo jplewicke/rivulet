@@ -227,7 +227,7 @@ class RoutesTest < Test::Unit::TestCase
     
     #Use part of the credit line.
     amt = 4.0
-    post "/transactions/User_#{src_id}", {:to => "User_#{dest_id}", :amount => amt}, cred(src_id)
+    post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => amt}, cred(dest_id)
     assert_equal 200, last_response.status
     #puts last_response.body
     assert_equal 4.0, JSON.parse(last_response.body)['max_credit_line']
@@ -262,7 +262,7 @@ class RoutesTest < Test::Unit::TestCase
     
     #Give back that 4.0 of credit.
     amt = 4.0
-    post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => amt}, cred(dest_id)
+    post "/transactions/User_#{src_id}", {:to => "User_#{dest_id}", :amount => amt}, cred(src_id)
     assert_equal 200, last_response.status
     assert_equal 10.0, JSON.parse(last_response.body)['max_debit_line']
     assert_equal 0.0, JSON.parse(last_response.body)['max_credit_line']
@@ -286,7 +286,7 @@ class RoutesTest < Test::Unit::TestCase
     
     #Reserve some of that there credit.
     amt = 3.0
-    post "/transactions/User_#{src_id}/held", {:to => "User_#{dest_id}", :amount => amt}, cred(dest_id)
+    post "/transactions/User_#{dest_id}/held", {:to => "User_#{src_id}", :amount => amt}, cred(dest_id)
     assert_equal 200, last_response.status
     puts last_response.body
     #assert_equal 0.0, JSON.parse(last_response.body)['max_debit_line']
@@ -295,7 +295,7 @@ class RoutesTest < Test::Unit::TestCase
     #assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
     
     # Should fail
-    post "/transactions/User_#{src_id}", {:to => "User_#{dest_id}", :amount => 8.0}, cred(src_id)
+    post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => 8.0}, cred(dest_id)
     assert_equal 403, last_response.status
     
     post "/transactions/User_#{dest_id}", {:to => "User_#{src_id}", :amount => 2.0}, cred(dest_id)
