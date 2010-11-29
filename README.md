@@ -22,7 +22,7 @@ Rivulet is a **simple RESTful web service**, so it's easy to integrate with your
 
 ## Installation
 
-Rivulet has been mainly tested on OS X so far, but it should also work well on Linux and on VPS hosting services like Amazon EC2 or Linode.
+So far, Rivulet has been successfully run on OS X and Ubuntu 10.10/10.4. It should also work well on Linux and on VPS hosting services like Amazon EC2 or Linode.
 
 1. Install [JRuby](http://www.jruby.org/).  (You need this instead of regular Ruby since Rivulet uses the Java graph database [Neo4j](http://neo4j.org), and hence runs on the JVM. This also makes Rivulet unsuitable for running on Heroku.)
 
@@ -45,9 +45,11 @@ Rivulet has been mainly tested on OS X so far, but it should also work well on L
 8. Start the server:
 `jruby -S bundle exec routes.rb`
 
+9. Try Rivulet's client by opening up [http://localhost:4567/main.html](http://localhost:4567/main.html) in your web browser(only tested on Firefox so far).
+
 ## Using Rivulet
 
-You'll probably want to reference either routes.rb or test.rb to see some examples of how to communicate with Rivulet from the command line.
+If you're trying to get Rivulet talking to another webapp, you'll probably want to reference either routes.rb or test.rb to see some examples of how to communicate with Rivulet from the command line.
 
 ## Updating Rivulet
 
@@ -58,3 +60,9 @@ You can update your copy of Rivulet's source code by running `git pull origin ma
 Rivulet is available under the GNU Affero General Public License, as seen in the LICENSE file.  Briefly speaking, this means that if you modify this program, you have to make your changes available to anyone who interacts with it over a network. 
 
 If you have a particular application that requires different licensing, please contact John Paul Lewicke at jplewicke@gmail.com .  Rivulet uses the graph database Neo4j, which charges licensing fees for use with closed source code.
+
+The JQuery files in public/ contain their own licensing information.
+
+## Acknowledgements
+
+Thanks to Romualdo and Miles for testing Rivulet on their setups, and to Ryan for getting this whole crazy Ripple thing going in the first place.
