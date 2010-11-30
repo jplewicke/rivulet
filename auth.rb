@@ -1,4 +1,3 @@
-require "sinatra"
 require "neo_classes"
 
 #Throws a 401 if the provided credentials don't match at least one of the enumerated users.

@@ -4,6 +4,7 @@ gem "rack"
 gem "neo4j", "0.4.6"
 gem "json"
 gem "warbler"
+gem "glassfish"
 
 group :test do
 	gem "test-unit"
