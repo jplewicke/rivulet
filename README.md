@@ -43,7 +43,7 @@ So far, Rivulet has been successfully run on OS X and Ubuntu 10.10/10.4. It shou
 `jruby -S bundle exec test.rb`  .  Since the OpenTransact asset reservations aren't working completely, you should expect the last couple tests to fail.
 
 8. Start the server:
-`jruby -S bundle exec routes.rb`
+`jruby -S bundle exec glassfish`
 
 9. Try Rivulet's client by opening up [http://localhost:4567/](http://localhost:4567/) in your web browser(only tested on Firefox so far).
 
