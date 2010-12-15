@@ -106,10 +106,18 @@ namespace :ec2 do
     system "ssh #{ssh_creds} echo #{new_user}:#{password} | sudo chpasswd\""
     system "ssh #{ssh_creds} usermod -a -G admin #{new_user}\""
     system "ssh #{ssh_creds} mkdir /home/#{new_user}/.ssh\""
-    for key in ssh_options[:keys]
-      system "cat  #{key}.pub | ssh #{ssh_creds} cat >> /home/#{new_user}/.ssh/authorized_keys2\""
-    end
     system "ssh #{ssh_creds} chown -R #{new_user}:#{new_user} /home/#{new_user}/.ssh\""
+    system "ssh #{ssh_creds} chmod -R go+w /home/#{new_user}/.ssh\""
+    for key in ssh_options[:keys]
+      system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
+      puts "cat  #{key}.pub | ssh #{ssh_creds} cat >> /home/#{new_user}/.ssh/authorized_keys\""
+      system "cat  #{key}.pub | ssh #{ssh_creds} cat >> /home/#{new_user}/.ssh/authorized_keys\""
+    end
+        system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
+    system "ssh #{ssh_creds} chmod 700 /home/#{new_user}/.ssh\""    
+    system "ssh #{ssh_creds} chmod 600 /home/#{new_user}/.ssh/authorized_keys\""
+    system "ssh #{ssh_creds} chown -R #{new_user}:#{new_user} /home/#{new_user}/.ssh\""
+          system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
     #system "scp -i #{aws_private_key_path} config/deploy_sudoers #{superuser}@#{hostname}:/etc/sudoers"
     set :user, new_user
   end
