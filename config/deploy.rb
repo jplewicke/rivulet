@@ -30,7 +30,7 @@ set :image_type, "m1.small"
 
 
 
-default_run_options[:pty] = false
+default_run_options[:pty] = true
 
 
 namespace :ec2 do
@@ -57,6 +57,12 @@ namespace :ec2 do
     puts user
     
     run "pwd"
+    
+    #run "ls -altr /home/ubuntu/.ssh"
+    run "#{sudo} ls -altr /home/ubuntu/.ssh"
+    
+    #run "apt-get update -y"
+    run "#{sudo} apt-get update -y"
   end
   
   desc "spinup a server"
@@ -74,52 +80,39 @@ namespace :ec2 do
       sleep dly 
       set :hostname, `ec2-describe-instances #{ami} | awk '$1 ~ /INST/ {printf $4}'`
       dly *= 1.5
-      
-      
-      
-      puts hostname
     end
-    
     server hostname, :web, :app, :db
     puts hostname
   end
   
   desc "uploads id_rsa.pub to the EC2 instance's deploy users authorized_keys2 file"
   task :bootstrap_deploy_user do
-    #old_key_loc = ssh_options[:keys]
-    #ssh_options[:keys] = aws_private_key_path
+    
+    default_run_options[:pty] = false
     sleep 10.0
     set :user, superuser
-    puts user
-    puts password
     
-    #Add server to known hosts.
     ssh_creds = "-i #{aws_private_key_path} #{superuser}@#{hostname} \"sudo "
     
-    puts "ssh -oStrictHostKeyChecking=no #{ssh_creds} pwd\""
-    system  "ssh -oStrictHostKeyChecking=no #{ssh_creds} pwd\""
-    system "ssh #{ssh_creds} groupadd admin\""
+    #Add server to known hosts.
+    system "ssh -oStrictHostKeyChecking=no #{ssh_creds} pwd\""
     
-    puts "ssh #{ssh_creds} useradd -d /home/#{new_user} -s /bin/bash -m #{new_user}\""
+    system "ssh #{ssh_creds} groupadd admin\""
     system "ssh #{ssh_creds} useradd -d /home/#{new_user} -s /bin/bash -m #{new_user}\""
-    puts "ssh #{ssh_creds} echo #{new_user}:#{password} | sudo chpasswd\""
     system "ssh #{ssh_creds} echo #{new_user}:#{password} | sudo chpasswd\""
     system "ssh #{ssh_creds} usermod -a -G admin #{new_user}\""
+    
     system "ssh #{ssh_creds} mkdir /home/#{new_user}/.ssh\""
-    system "ssh #{ssh_creds} chown -R #{new_user}:#{new_user} /home/#{new_user}/.ssh\""
-    system "ssh #{ssh_creds} chmod -R go+w /home/#{new_user}/.ssh\""
     for key in ssh_options[:keys]
-      system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
-      puts "cat  #{key}.pub | ssh #{ssh_creds} cat >> /home/#{new_user}/.ssh/authorized_keys\""
-      system "cat  #{key}.pub | ssh #{ssh_creds} cat >> /home/#{new_user}/.ssh/authorized_keys\""
+      # Run this command in a subshell so we can sudo for it.
+      system "cat  #{key}.pub | ssh #{ssh_creds} sh -c \'cat >> /home/#{new_user}/.ssh/authorized_keys\'\""
     end
-        system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
-    system "ssh #{ssh_creds} chmod 700 /home/#{new_user}/.ssh\""    
-    system "ssh #{ssh_creds} chmod 600 /home/#{new_user}/.ssh/authorized_keys\""
+    system "ssh #{ssh_creds} chmod -R go-rwx /home/#{new_user}/.ssh\""    
     system "ssh #{ssh_creds} chown -R #{new_user}:#{new_user} /home/#{new_user}/.ssh\""
-          system "ssh #{ssh_creds} ls -haltr /home/#{new_user}/.ssh/{,authorized_keys}\""
     #system "scp -i #{aws_private_key_path} config/deploy_sudoers #{superuser}@#{hostname}:/etc/sudoers"
+    
     set :user, new_user
+    default_run_options[:pty] = true
   end
   
   task :shutdown_ami do
@@ -136,26 +129,26 @@ namespace :ec2 do
 
   desc "Update apt-get sources"
   task :update_apt_get do
-    system "ssh -i #{aws_private_key_path} root@#{hostname} \"apt-get update -y\""
+    run "#{sudo} apt-get update -y"
   end
 
   desc "Install Development Tools"
   task :install_dev_tools do
-    system "ssh -i #{aws_private_key_path} root@#{hostname} \"apt-get install build-essential -y\""
+    run "#{sudo} apt-get install build-essential -y"
   end
 
   desc "Install Git"
   task :install_git do
-    system "ssh -i #{aws_private_key_path} root@#{hostname} \"apt-get install git-core git-svn -y\""
+    run "#{sudo} apt-get install git-core git-svn -y"
   end
 
   desc "Install Subversion"
   task :install_subversion do
-    system "ssh -i #{aws_private_key_path} root@#{hostname} \"apt-get install subversion -y\""
+    run "#{sudo} apt-get install subversion -y"
   end
   
   desc "Install JRuby"
   task :install_jruby do
-    system "ssh -i #{aws_private_key_path} root@#{hostname} \"apt-get update\""
+    run "#{sudo} apt-get update"
   end
 end  
