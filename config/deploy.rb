@@ -44,7 +44,7 @@ namespace :ec2 do
     create_ec2_server
     wait_spinup
     bootstrap_deploy_user
-    #setup_env
+    setup_env
     #shutdown_ami
     #test_sudo
   end
@@ -125,6 +125,10 @@ namespace :ec2 do
     install_dev_tools
     install_git
     install_subversion
+    install_jruby
+    download_rivulet
+    install_gems
+    run_install_test
   end
 
   desc "Update apt-get sources"
@@ -135,6 +139,7 @@ namespace :ec2 do
   desc "Install Development Tools"
   task :install_dev_tools do
     run "#{sudo} apt-get install build-essential -y"
+    run "#{sudo} apt-get install gawk -y"
   end
 
   desc "Install Git"
@@ -149,6 +154,31 @@ namespace :ec2 do
   
   desc "Install JRuby"
   task :install_jruby do
-    run "#{sudo} apt-get update"
+    run "wget http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-bin-1.5.6.tar.gz"
+    run "md5sum jruby-bin-1.5.6.tar.gz  | awk '$1 !~ /94033a36517645b7a7ec781a3507c654/ {print \"bad jruby tar\" ; exit 1}'"
+    run "tar xvzf jruby-bin-1.5.6.tar.gz"
+    run "rm -f jruby-bin-1.5.6.tar.gz"
+    run "mv jruby-1.5.6 jruby"
+    run "echo export JRUBY_HOME=`pwd`/jruby >> ~/.bashrc"
+    run "echo 'export PATH=$PATH:$JRUBY_HOME/bin' >> ~/.bashrc"
+  end
+  
+  desc "Clone the Rivulet repository from Github."
+  task :download_rivulet do
+    run "git clone https://github.com/jplewicke/rivulet.git"
+  end
+  
+  desc "Download gems and Rivulet dependencies"
+  task :install_gems do
+    run "#{sudo} jruby -S gem install bundler"
+    run "cd rivulet"
+    run "ls -altr"
+    run "#{sudo} jruby -S bundle install"
+  end
+  
+  desc "Check that the Rivulet installation is working well."
+  task :run_install_test do
+    run "jruby -S bundle exec test_init.rb"
+    run "jruby -S bundle exec test.rb"
   end
 end  
