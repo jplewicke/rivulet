@@ -89,7 +89,7 @@ namespace :ec2 do
   task :bootstrap_deploy_user do
     
     default_run_options[:pty] = false
-    sleep 10.0
+    sleep 30.0
     set :user, superuser
     
     ssh_creds = "-i #{aws_private_key_path} #{superuser}@#{hostname} \"sudo "
@@ -121,6 +121,9 @@ namespace :ec2 do
   
   desc "Setup Environment"
   task :setup_env do
+    puts default_environment
+    puts default_environment[:PATH]
+    run "echo $PATH"
     update_apt_get
     install_dev_tools
     install_git
@@ -154,6 +157,7 @@ namespace :ec2 do
   
   desc "Install JRuby"
   task :install_jruby do
+    run "#{sudo} apt-get install openjdk-6-jre-headless -y"
     run "wget http://jruby.org.s3.amazonaws.com/downloads/1.5.6/jruby-bin-1.5.6.tar.gz"
     run "md5sum jruby-bin-1.5.6.tar.gz  | awk '$1 !~ /94033a36517645b7a7ec781a3507c654/ {print \"bad jruby tar\" ; exit 1}'"
     run "tar xvzf jruby-bin-1.5.6.tar.gz"
@@ -161,6 +165,9 @@ namespace :ec2 do
     run "mv jruby-1.5.6 jruby"
     run "echo export JRUBY_HOME=`pwd`/jruby >> ~/.bashrc"
     run "echo 'export PATH=$PATH:$JRUBY_HOME/bin' >> ~/.bashrc"
+    
+    default_environment[:PATH] = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/deploy/jruby/bin'
+    default_environment[:JRUBY_HOME] = '/home/deploy/jruby'
   end
   
   desc "Clone the Rivulet repository from Github."
@@ -170,15 +177,17 @@ namespace :ec2 do
   
   desc "Download gems and Rivulet dependencies"
   task :install_gems do
-    run "#{sudo} jruby -S gem install bundler"
-    run "cd rivulet"
-    run "ls -altr"
-    run "#{sudo} jruby -S bundle install"
+    set :jruby_path, "/home/deploy/jruby/bin/jruby"
+    #set :jruby_path, "jruby"
+    run "#{sudo} #{jruby_path} -S gem install bundler"
+    run ""
+    run "cd rivulet ; ls -altr"
+    run "cd rivulet ; #{sudo} #{jruby_path} -S bundle install"
   end
   
   desc "Check that the Rivulet installation is working well."
   task :run_install_test do
-    run "jruby -S bundle exec test_init.rb"
-    run "jruby -S bundle exec test.rb"
+    run "cd rivulet ; #{jruby_path} -S bundle exec test_init.rb"
+    run "cd rivulet ; #{jruby_path} -S bundle exec test.rb"
   end
 end  
