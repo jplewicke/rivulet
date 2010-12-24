@@ -165,9 +165,19 @@ namespace :ec2 do
     run "mv jruby-1.5.6 jruby"
     run "echo export JRUBY_HOME=`pwd`/jruby >> ~/.bashrc"
     run "echo 'export PATH=$PATH:$JRUBY_HOME/bin' >> ~/.bashrc"
+    run "echo 'alias sudo=\"sudo env PATH=$PATH\"' >> ~/.bashrc"
+    run "#{sudo} chmod o+w /etc/environment"
+    run "echo JRUBY_HOME=\"`pwd`/jruby\" >> /etc/environment"
+    run "echo PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:`pwd`/jruby/bin\" >> /etc/environment"
+    run "echo \"echo Defaults   secure_path=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:`pwd`/jruby/bin\" >> /etc/sudoers\" | sudo su"
+    run "#{sudo} chmod o-w /etc/environment"
     
-    default_environment[:PATH] = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/deploy/jruby/bin'
-    default_environment[:JRUBY_HOME] = '/home/deploy/jruby'
+    #Add to /etc/environment/?
+    
+    #default_environment[:PATH] = '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/home/deploy/jruby/bin'
+    #default_environment[:JRUBY_HOME] = '/home/deploy/jruby'
+    
+    teardown_connections_to(sessions.keys)
   end
   
   desc "Clone the Rivulet repository from Github."
@@ -189,5 +199,11 @@ namespace :ec2 do
   task :run_install_test do
     run "cd rivulet ; #{jruby_path} -S bundle exec test_init.rb"
     run "cd rivulet ; #{jruby_path} -S bundle exec test.rb"
+    run "ls -altr /etc/environment"
+    run "#{sudo} cat /etc/sudoers"
+    run "echo $PATH"
+    run "#{sudo} echo $PATH"
+    run "jruby -v"
+    run "#{sudo} jruby -v"
   end
 end  
