@@ -1,13 +1,11 @@
 <HTML>
 <HEAD>
-	<!-- Copyright 2010 John Paul Lewicke and Romualdo Grillo.  Licensed under the Gnu Affero General Public License -- see ../LICENSE -->
 <TITLE>Rivulet User Interface</TITLE>
 <SCRIPT type="text/javascript" src="jquery.js"></SCRIPT>
 <SCRIPT type="text/javascript" src="jquery.layout.js"></SCRIPT>
 <SCRIPT type="text/javascript" src="jquery.ui.all.js"></SCRIPT>
 <SCRIPT type="text/javascript" src="jquery.base64.js"></SCRIPT>
 <SCRIPT type="text/javascript" src="actions.js"></SCRIPT>
-<script type="text/javascript" src="Diagrams/DiagramFunctions.js"></script><! added by Romualdo/>
 <SCRIPT type="text/javascript">
 function getAuthCookie() {
    var cn = "Authorization=";
@@ -42,7 +40,6 @@ $(document).ready(function () {
 			success: function(data, textStatus, xhr) {
 					$("#resultTextArea").val(data);
 					myLayout.close("east");
-                                        interpretVisualize();//added Romualdo
 				},
 			error: function(xhr, textStatus, errorThrown) {
 				alert("Error: " + xhr.responseText);
@@ -76,7 +73,6 @@ $(document).ready(function () {
 			success: function(data, textStatus, xhr) {
 					$("#resultTextArea").val(data);
 					myLayout.close("east");
-                                         interpretVisualize();//added Romualdo
 				},
 			error: function(xhr, textStatus, errorThrown) {
 				alert("Error: " + xhr.responseText);
@@ -90,8 +86,8 @@ $(document).ready(function () {
 });
 </SCRIPT>
 </HEAD>
-<BODY onload="prepare()"><! prepare() added by Romualdo/>
-<DIV class="ui-layout-center" align="center" >
+<BODY>
+<DIV class="ui-layout-center">
 	<P>Welcome to Rivulet!</P>
 	<P>If you already have a username and password, please enter it at the top of the screen.  You can create a new account by entering a new username and password in the form, and then click this button to <input type="button" id="createUser" value="Create New User">.</P>
 	
@@ -99,19 +95,6 @@ $(document).ready(function () {
 		
 	<P>The JSON results returned from Rivulet are displayed below. I'm currently working on making them work better within the user interface.</P>
 	<textarea cols="67" rows="10" id="resultTextArea"></textarea>
-<! added by Romualdo >
-<br>
-<form name="f">
-<select onchange="change(this.value)">
-<option value="orange">orange</option>
-<option value="green">green</option>
-<option value="red">red</option>
-</select>
-</form>  
-<embed id="sv" src="Diagrams/CreditLine.svg" width=300 height=150>
-</embed>
-<button onclick="interpretVisualize()"> interpret </button>
-<! added by Romualdo />
 </DIV>
 <DIV class="ui-layout-north"><form action="">
     <div><label for="username">User:</label>
