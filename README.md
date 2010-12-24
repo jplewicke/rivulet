@@ -47,6 +47,24 @@ So far, Rivulet has been successfully run on OS X and Ubuntu 10.10/10.4. It shou
 
 9. Try Rivulet's client by opening up [http://localhost:4567/](http://localhost:4567/) in your web browser(only tested on Firefox so far).
 
+## Deploying Rivulet to EC2
+
+If you want to run Rivulet on [http://aws.amazon.com/ec2/](Amazon's Elastic Compute Cloud), you can download a copy of Rivulet(steps 1 and 2 above), and then take the following steps to launch your own copy of Rivulet on EC2:
+
+1. Signup for Amazon Web Services and configure your keys and environment variables the way they describe.
+
+2. Create a .caprc file in your home directory to store information about passwords and the locations of certain cryptographic keys.  Mine looks sort of like this:
+`set :aws_private_key_path, "/Users/jplewicke/.ec2/ec2-keypair"
+set :password, "sudo_password"
+set :aws_private_key_name, "ec2-keypair"
+ssh_options[:keys] = %w(/Users/jplewicke/.ssh/id_rsa)`
+
+3. Make sure you have [https://github.com/capistrano/capistrano](Capistrano) installed by running `cap -V`.
+
+4. Change directories so that you're in the rivulet directory.
+
+5. Run `cap ec2:setup_server`.
+
 ## Using Rivulet
 
 If you're trying to get Rivulet talking to another webapp, you'll probably want to reference either routes.rb or test.rb to see some examples of how to communicate with Rivulet from the command line.
@@ -64,5 +82,7 @@ If you have a particular application that requires different licensing, please c
 The JQuery files in public/ contain their own licensing information.
 
 ## Acknowledgements
+
+Romualdo has helped a ton with testing and wrote an awesome graphical viewer for the current status of credit relationships.
 
 Thanks to Romualdo and Miles for testing Rivulet on their setups, and to Ryan for getting this whole crazy Ripple thing going in the first place.

@@ -132,6 +132,7 @@ namespace :ec2 do
     download_rivulet
     install_gems
     run_install_test
+    launch_rivulet
   end
 
   desc "Update apt-get sources"
@@ -163,6 +164,10 @@ namespace :ec2 do
     run "tar xvzf jruby-bin-1.5.6.tar.gz"
     run "rm -f jruby-bin-1.5.6.tar.gz"
     run "mv jruby-1.5.6 jruby"
+    
+    #Setup JRUBY environment information.  Need to have the right path for deploy user,
+    #sudoing, and any other users.
+    
     run "echo export JRUBY_HOME=`pwd`/jruby >> ~/.bashrc"
     run "echo 'export PATH=$PATH:$JRUBY_HOME/bin' >> ~/.bashrc"
     run "echo 'alias sudo=\"sudo env PATH=$PATH\"' >> ~/.bashrc"
@@ -188,7 +193,7 @@ namespace :ec2 do
   desc "Download gems and Rivulet dependencies"
   task :install_gems do
     set :jruby_path, "/home/deploy/jruby/bin/jruby"
-    #set :jruby_path, "jruby"
+    set :jruby_path, "jruby"
     run "#{sudo} #{jruby_path} -S gem install bundler"
     run ""
     run "cd rivulet ; ls -altr"
@@ -199,11 +204,12 @@ namespace :ec2 do
   task :run_install_test do
     run "cd rivulet ; #{jruby_path} -S bundle exec test_init.rb"
     run "cd rivulet ; #{jruby_path} -S bundle exec test.rb"
-    run "ls -altr /etc/environment"
-    run "#{sudo} cat /etc/sudoers"
-    run "echo $PATH"
-    run "#{sudo} echo $PATH"
-    run "jruby -v"
-    run "#{sudo} jruby -v"
   end
+  
+  desc "Launch the Rivulet website."
+  task :launch_rivulet do
+    run "#{sudo} nohup jruby -S bundle exec glassfish -p 80 > log.log < /dev/null 2>&1 &"
+    puts "Rivulet is now running at http://#{hostname} ."
+    puts "You can access this server by running \" ssh deploy@#{hostname} \"."
+  end    
 end  

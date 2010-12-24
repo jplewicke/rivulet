@@ -1,0 +1,33 @@
+<?xml version="1.0" standalone="yes"?>
+
+<svg version="1.1" viewBox="0.0 0.0 240.0 110.0" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<defs>
+<path id="DefleftBracket" d="M2.5728436 11.069412Q0.83846855 8.866287 -0.37246892 5.913162Q-1.5834064 2.960037 -1.5834064 -0.19621299Q-1.5834064 -2.993088 -0.67715645 -5.539963Q0.36971858 -8.508713 2.5728436 -11.446213L4.0884686 -11.446213Q2.6665936 -9.008713 2.2134686 -7.977463Q1.4947186 -6.352463 1.0884686 -4.602463Q0.58846855 -2.399338 0.58846855 -0.19621299Q0.58846855 5.444412 4.0884686 11.069412L2.5728436 11.069412Z" fill-rule="nonzero" fill="black">
+</path>
+</defs>
+<g id="Line_Point" display="inline">
+  <g id="line_with_Center" display="inline">
+    <line x1="40" y1="40" x2="200" y2="40" style="stroke:rgb(99,99,99);stroke-width:2"/>
+    <line x1="120" y1="30" x2="120" y2="50" style="stroke:rgb(99,99,99);stroke-width:2"/>
+  </g>
+  <circle id="balancePoint" cx="120" cy="40" r="0.3em" fill="#00ff00" stroke="#073763" stroke-width="2.0"></circle>
+  <text id="balanceText" x="120" y="13" font-size="14" font-family="arial" fill="Black" text-anchor="middle" > ..... </text>
+</g>
+<g id="Node1" display="inline">
+<circle id="Node1_circle" cx="40" cy="40" r="1.5em" fill="#f1c232" stroke="#073763" stroke-width="2.0"></circle>
+<text id="text1" x="40" y="45" font-size="14" font-family="arial" fill="Black" text-anchor="middle"> node1 </text>
+</g>
+<g id="Node2" display="inline">
+<circle id="Node2_circle" cx="200" cy="40" r="1.5em" fill="#3d85c6" stroke="#073763" stroke-width="2.0"/>
+<text id="text2" x="200" y="45" font-size="14" font-family="arial" fill="Black" text-anchor="middle"> node2 </text>
+</g>
+<g id="leftLimit">
+  <use id="leftBracket" x="120" y="40" xlink:href="#DefleftBracket" />
+  <text id="leftLimitText" x="115" y="70" font-size="14" font-family="arial" fill="Black" text-anchor="middle" >l</text>
+</g>
+<g id="rightLimit">
+  <use id="rightBracket" x="120" y="40" width="10" xlink:href="#DefleftBracket" transform="rotate(180, 120, 40)"/> 
+  <text id="rightLimitText" x="125" y="70" font-size="14" font-family="arial" fill="Black" text-anchor="middle" >......r</text>
+</g>
+</svg>
+
