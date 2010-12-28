@@ -63,7 +63,7 @@ ssh_options[:keys] = %w(/Users/jplewicke/.ssh/id_rsa)`
 
 4. Change directories so that you're in the rivulet directory.
 
-5. Run `cap ec2:setup_server`.
+5. Run `cap ec2:add_server`.
 
 ## Using Rivulet
 

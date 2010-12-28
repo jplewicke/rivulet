@@ -8,7 +8,10 @@ set :repository,  "https://github.com/jplewicke/rivulet"
 # If you aren't deploying to /u/apps/#{application} on the target
 # servers (which is the default), you can specify the actual location
 # via the :deploy_to variable:
-set :deploy_to, "/var/www/#{application}"
+set :deploy_to, "/home/deploy/#{application}"
+set :repository, "/Users/jplewicke/Dropbox/rivulet"
+set :scm, "git"
+set :deploy_via, :copy
 
 # If you aren't using Subversion to manage your source code, specify
 # your SCM below:
@@ -28,6 +31,19 @@ set :ami_name, "ami-1a837773"
 #set :ami_name, "ami-a403f7cd"
 set :image_type, "m1.small"
 
+set :context_root, "/"
+
+set :jruby_location, "/home/deploy/jruby/"
+
+set :gf_port, "80"
+
+set :environment, "production"
+
+set :jruby_runtimes, "1"
+
+set :jruby_min_runtimes, "1"
+
+set :jruby_max_runtimes, "1"
 
 
 default_run_options[:pty] = true
@@ -39,8 +55,8 @@ namespace :ec2 do
   
   set :superuser, "ubuntu"
   
-  desc "Setup server"
-  task :setup_server do
+  desc "Spin up a new Rivulet server on EC2"
+  task :add_server do
     create_ec2_server
     wait_spinup
     bootstrap_deploy_user
@@ -192,23 +208,20 @@ namespace :ec2 do
   
   desc "Download gems and Rivulet dependencies"
   task :install_gems do
-    set :jruby_path, "/home/deploy/jruby/bin/jruby"
-    set :jruby_path, "jruby"
-    run "#{sudo} #{jruby_path} -S gem install bundler"
-    run ""
+    run "#{sudo} jruby -S gem install bundler"
     run "cd rivulet ; ls -altr"
-    run "cd rivulet ; #{sudo} #{jruby_path} -S bundle install"
+    run "cd rivulet ; #{sudo} jruby -S bundle install"
   end
   
   desc "Check that the Rivulet installation is working well."
   task :run_install_test do
-    run "cd rivulet ; #{jruby_path} -S bundle exec test_init.rb"
-    run "cd rivulet ; #{jruby_path} -S bundle exec test.rb"
+    run "cd rivulet ; jruby -S bundle exec test_init.rb"
+    run "cd rivulet ; jruby -S bundle exec test.rb"
   end
   
   desc "Launch the Rivulet website."
   task :launch_rivulet do
-    run "#{sudo} nohup jruby -S bundle exec glassfish -p 80 > log.log < /dev/null 2>&1 &"
+    run "cd rivulet ; sudo nohup jruby -S bundle exec glassfish -p 80 > log.log 2>&1 &"
     puts "Rivulet is now running at http://#{hostname} ."
     puts "You can access this server by running \" ssh deploy@#{hostname} \"."
   end    
