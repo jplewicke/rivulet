@@ -224,5 +224,6 @@ namespace :ec2 do
     run "cd rivulet ; sudo nohup jruby -S bundle exec glassfish -p 80 > log.log 2>&1 &"
     puts "Rivulet is now running at http://#{hostname} ."
     puts "You can access this server by running \" ssh deploy@#{hostname} \"."
+    puts "You can terminate this server by running \" ec2-terminate-instance #{ami} \"."
   end    
 end  
