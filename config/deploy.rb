@@ -148,6 +148,7 @@ namespace :ec2 do
     download_rivulet
     install_gems
     run_install_test
+    install_apache
     launch_rivulet
   end
 
@@ -219,11 +220,34 @@ namespace :ec2 do
     run "cd rivulet ; jruby -S bundle exec test.rb"
   end
   
+  desc "Install Apache"
+  task :install_apache do
+    run "#{sudo} apt-get install apache2 -y"
+    run "#{sudo} a2enmod proxy_http"
+    run "#{sudo} apache2ctl stop"
+  end
+  
   desc "Launch the Rivulet website."
   task :launch_rivulet do
-    run "cd rivulet ; sudo nohup jruby -S bundle exec glassfish -p 80 > log.log 2>&1 &"
+    run "mkdir rivulet/tmp ; mkdir rivulet/tmp/pids"
+    run "#{sudo} apt-get install libjna-java -y"
+    run "#{sudo} chmod o+rw /etc/apache2/apache2.conf"
+    run "#{sudo} echo ProxyPass / http://localhost:3000/ >> /etc/apache2/apache2.conf"
+    run "#{sudo} echo ProxyPassReverse / http://localhost:3000/ >> /etc/apache2/apache2.conf"
+    run "#{sudo} chmod o-rw /etc/apache2/apache2.conf"
+    
+    run "#{sudo} apache2ctl stop"
+    run "#{sudo} apache2ctl stop"
+    system "sleep 10"
+    run "#{sudo} apache2ctl start"
+    run "#{sudo} apache2ctl start"
+    
     puts "Rivulet is now running at http://#{hostname} ."
     puts "You can access this server by running \" ssh deploy@#{hostname} \"."
-    puts "You can terminate this server by running \" ec2-terminate-instance #{ami} \"."
+    puts "You can terminate this server by running \" ec2-terminate-instances #{ami} \"."
+    
+    system "ssh #{user}@#{hostname} \"cd rivulet ; nohup jruby -S bundle exec glassfish > test.out 2>&1 &\""
+    #run "cd rivulet ; nohup jruby -S bundle exec glassfish > test.out"
+    
   end    
 end  
