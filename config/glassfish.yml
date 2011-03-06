@@ -101,7 +101,7 @@ jruby-runtime-pool:
 daemon:
     # Run GlassFish as a daemon. GlassFish may not run as a daemon process
     # on all platforms. Default value is false.
-    enable: true
+    enable: false
 
     # File where the process id of GlassFish is saved when run as daemon.
     # The location must be either an absolute path or relative to your 
