@@ -3,6 +3,8 @@ require File.join(File.dirname(__FILE__), '..', 'routes.rb')
 require 'rack/test'
 require 'ruby-debug'
 require 'rspec'
+
+require 'base64'
  
 # set test environment
 set :environment, :test
