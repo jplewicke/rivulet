@@ -44,13 +44,13 @@ class CreditRelationship
     #Kind of ugly at the moment -- TODO cleanup. 
     
     if (@source.activelytrusts.include?(@dest) and self.slack_givable <= 0.0)
-      @source.rels.outgoing(:activelytrusts)[@dest].delete
+      @source.rels(:activelytrusts).outgoing.find {|r| r.getEndNode == @dest}.delete
     end
     if (not @source.activelytrusts.include?(@dest) and self.slack_givable > 0.0)
       @source.activelytrusts << @dest
     end
     if (@dest.activelytrusts.include?(@source) and self.slack_returnable <= 0.0)
-      @dest.rels.outgoing(:activelytrusts)[@source].delete
+      @dest.rels(:activelytrusts).outgoing.find {|r| r.getEndNode == @source}.delete
     end
     if (not @dest.activelytrusts.include?(@source) and self.slack_returnable > 0.0)
       @dest.activelytrusts << @source
@@ -138,8 +138,7 @@ class CreditPath
   
   #Update paths.
   def refresh!
-    #puts "Depth #{@depth}"
-    @users = @source.traverse.outgoing(:activelytrusts).depth(@depth).path_to(@dest)
+    Neo4j::Algo.shortest_path(@source,@dest).outgoing(:activelytrusts).depth(@depth)
     
     @users = [] if @users.nil?
     
