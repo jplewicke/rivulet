@@ -1,6 +1,4 @@
 require 'neo_classes'
-require 'neo4j/extensions/graph_algo'
-require 'neo4j/extensions/find_path'
 require 'json'
 
 #Various classes that provide an abstract way of managing the flow of credit between

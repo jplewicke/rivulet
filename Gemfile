@@ -1,7 +1,7 @@
 source :rubygems
 gem "sinatra"
 gem "rack"
-gem "neo4j", "0.4.6"
+gem "neo4j", "1.0.0"
 gem "json"
 gem "warbler"
 gem "glassfish"

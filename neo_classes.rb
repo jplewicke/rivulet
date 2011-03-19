@@ -1,8 +1,6 @@
 require 'neo4j'
 
 Neo4j::Config[:storage_path] = "#{Dir.pwd}/dbneo"
-Lucene::Config[:storage_path] = "#{Dir.pwd}/dblucene"
-Lucene::Config[:store_on_file] = true
 
 
 #Neo4j-based classes. Objects with these types are the ones that are actually persisted
@@ -62,7 +60,7 @@ class User
   
   has_n(:activelytrusts)
   
-  has_n(:trusted_by).relationship(CreditOffer).from(User)
+  has_n(:trusted_by).relationship(CreditOffer).from(:user)
   
   index :user_id
   
@@ -70,7 +68,8 @@ class User
     
     if self.trusts.include?(dest)
       #puts "yippee"
-      rel = self.rels.outgoing(:trusts)[dest]
+      
+      rel = self.rels(:trusts).outgoing.find {|r| r.getEndNode == dest}
     else
       rel = self.trusts.new(dest)
       rel.max_offered = 0.0
