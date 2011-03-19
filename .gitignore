@@ -5,3 +5,4 @@ index_old.rb
 Gemfile.lock
 log
 tmp
+*.war
