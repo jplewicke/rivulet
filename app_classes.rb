@@ -138,11 +138,17 @@ class CreditPath
   
   #Update paths.
   def refresh!
-    Neo4j::Algo.shortest_path(@source,@dest).outgoing(:activelytrusts).depth(@depth)
-    
+    puts @users
+    @users = Neo4j::Algo.shortest_path(@source,@dest).outgoing(:activelytrusts)
     @users = [] if @users.nil?
-    
-    @credits = @users.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
+    puts @users.public_methods
+    begin
+      @credits = @users.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
+    rescue NoMethodError
+      @users = []
+      @credits = []
+    end
+      
   end
   
   def save!
