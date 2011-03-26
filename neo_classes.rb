@@ -65,10 +65,7 @@ class User
   index :user_id
   
   def trustrel(dest)
-    
     if self.trusts.include?(dest)
-      #puts "yippee"
-      
       rel = self.rels(:trusts).outgoing.find {|r| r.getEndNode == dest}
     else
       rel = self.trusts.new(dest)
@@ -78,7 +75,7 @@ class User
       rel.amount_held = 0.0
     end
     
-    return rel
+    rel
   end
   
   

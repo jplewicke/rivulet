@@ -138,7 +138,7 @@ class CreditPath
   
   #Update paths.
   def refresh!
-    path_algo = Neo4j::Algo.shortest_path(@source,@dest)
+    path_algo = Neo4j::Algo.shortest_path(@source,@dest).outgoing(:activelytrusts).depth(@depth)
     if path_algo.nil?
       @users = []
       @credits = []
@@ -146,9 +146,10 @@ class CreditPath
       java_nodes = []
       begin
         java_nodes = path_algo.collect {|jnode| jnode }
+        
+        #NoMethodError will be raised when no path can be found.
       rescue NoMethodError
         java_nodes = []
-        puts "weird error thing"
       end
       @users = java_nodes.collect {|jnode| User.load_wrapper(jnode)}
       @credits = @users.each_cons(2).collect {|pair| CreditRelationship.new(pair.first, pair.last)}
