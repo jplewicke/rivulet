@@ -1,4 +1,6 @@
-require "neo_classes"
+require 'neo_classes'
+require 'bcrypt'
+
 
 #Throws a 401 if the provided credentials don't match at least one of the enumerated users.
 def protected!(user_ids)
@@ -11,7 +13,7 @@ end
 def authorized?(user_id)
   user_creds = User.creds_from_id(user_id)
   @auth ||=  Rack::Auth::Basic::Request.new(request.env)
-  @auth.provided? && @auth.basic? && @auth.credentials && @auth.credentials == user_creds
+  @auth.provided? && @auth.basic? && @auth.credentials && user_creds == @auth.credentials
 end
 
 def authed_user(user_ids)

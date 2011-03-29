@@ -5,6 +5,7 @@ gem "neo4j", "1.0.0"
 gem "json"
 gem "warbler"
 gem "glassfish"
+gem "bcrypt-ruby"
 
 gem "rspec"
 gem "ruby-debug"

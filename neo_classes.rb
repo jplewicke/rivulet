@@ -54,7 +54,7 @@ end
 class User
   include Neo4j::NodeMixin
   
-  property :user_id, :depth, :secret
+  property :user_id, :depth, :encrypted_password
   
   has_n(:trusts).relationship(CreditOffer)
   
@@ -102,7 +102,7 @@ class User
   end
   
   def credentials
-    return [self.user_id, self.secret]
+    return [self.user_id, BCrypt::Password.new(self.encrypted_password)]
   end
   
   def to_json

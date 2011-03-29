@@ -56,7 +56,7 @@ post '/accounts/?' do
       end
       
       #Create account for new user.
-      user = User.new :user_id => params["user"], :depth => depth, :secret => params["secret"]
+      user = User.new :user_id => params["user"], :depth => depth, :encrypted_password => BCrypt::Password.create(params["secret"])
       user.to_json
     else
       throw(:halt, [403, "Not authorized\n"])

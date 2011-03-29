@@ -1,4 +1,5 @@
 require "app_classes"
+require "bcrypt"
 
 num_nodes = 500
 num_edges_per = 15
@@ -12,7 +13,7 @@ end
 users = []
 
 Neo4j::Transaction.run do
-  users = user_ids.collect {|a| User.new :user_id => a, :depth => 15, :secret => "pw"}
+  users = user_ids.collect {|a| User.new :user_id => a, :depth => 15, :encrypted_password => BCrypt::Password.create("pw")}
   puts users
 end
 
