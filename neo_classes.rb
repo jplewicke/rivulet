@@ -1,4 +1,5 @@
 require 'neo4j'
+require 'app_classes'
 
 Neo4j::Config[:storage_path] = "#{Dir.pwd}/dbneo"
 
@@ -78,6 +79,13 @@ class User
     rel
   end
   
+  def creditors
+    self.outgoing(:trusts).incoming(:trusts).depth(1).collect {|dest| CreditRelationship.new(self, dest)}
+  end
+  
+  def balance
+    self.creditors.collect {|creditRel| creditRel.source_offer.amount_used - creditRel.dest_offer.amount_used}.reduce {|a,b| a + b}
+  end
   
   def self.fromid(id)
     ret = nil
@@ -109,6 +117,7 @@ class User
     {
       :user => self.user_id,
       :depth => self.depth,
+      :balance => self.balance,
       :account_url => "/accounts/#{self.user_id}",
       :credit_url => "/credits/#{self.user_id}",
       :transaction_url => "/transactions/#{self.user_id}",

@@ -235,6 +235,14 @@ class RoutesTest < Test::Unit::TestCase
     assert_equal 0.0, JSON.parse(last_response.body)['debit_held']
     assert_equal 0.0, JSON.parse(last_response.body)['credit_held']
     
+    #Check balances for each user.
+    
+    get "/accounts/User_#{src_id}", {}, cred(src_id)
+    assert_equal 200, last_response.status
+    assert_equal 4.0, JSON.parse(last_response.body)['balance']
+    get "/accounts/User_#{dest_id}", {}, cred(dest_id)
+    assert_equal 200, last_response.status
+    assert_equal -4.0, JSON.parse(last_response.body)['balance']
     
     #Accept full credit.
     amt = 10.0

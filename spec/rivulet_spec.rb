@@ -240,6 +240,13 @@ describe "Routes" do
     JSON.parse(last_response.body)['debit_held'].should == 0.0 
     JSON.parse(last_response.body)['credit_held'].should == 0.0 
 
+    get "/accounts/User_#{src_id}", {}, cred(src_id)
+    last_response.status.should == 200
+    JSON.parse(last_response.body)['balance'].should == 4.0
+    
+    get "/accounts/User_#{dest_id}", {}, cred(dest_id)
+    last_response.status.should == 200
+    JSON.parse(last_response.body)['balance'].should == -4.0
 
     #Accept full credit.
     amt = 10.0
