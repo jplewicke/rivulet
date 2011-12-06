@@ -1,0 +1,90 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    abstract (1.0.0)
+    actionpack (3.0.5)
+      activemodel (= 3.0.5)
+      activesupport (= 3.0.5)
+      builder (~> 2.1.2)
+      erubis (~> 2.6.6)
+      i18n (~> 0.4)
+      rack (~> 1.2.1)
+      rack-mount (~> 0.6.13)
+      rack-test (~> 0.5.7)
+      tzinfo (~> 0.3.23)
+    activemodel (3.0.5)
+      activesupport (= 3.0.5)
+      builder (~> 2.1.2)
+      i18n (~> 0.4)
+    activesupport (3.0.5)
+    bcrypt-ruby (2.1.4-java)
+    builder (2.1.2)
+    columnize (0.3.2)
+    diff-lcs (1.1.2)
+    erubis (2.6.6)
+      abstract (>= 1.0.0)
+    glassfish (1.0.3-java)
+      rack (>= 0.4.0)
+    i18n (0.5.0)
+    jruby-jars (1.6.0)
+    jruby-rack (1.0.8)
+    json (1.5.1-java)
+    neo4j (1.0.0-java)
+      activemodel (>= 3.0.0)
+      orm_adapter (>= 0.0.3)
+      railties (>= 3.0.0)
+      will_paginate (~> 3.0.pre)
+    orm_adapter (0.0.4)
+    rack (1.2.2)
+    rack-mount (0.6.14)
+      rack (>= 1.0.0)
+    rack-test (0.5.7)
+      rack (>= 1.0)
+    railties (3.0.5)
+      actionpack (= 3.0.5)
+      activesupport (= 3.0.5)
+      rake (>= 0.8.7)
+      thor (~> 0.14.4)
+    rake (0.8.7)
+    rspec (2.5.0)
+      rspec-core (~> 2.5.0)
+      rspec-expectations (~> 2.5.0)
+      rspec-mocks (~> 2.5.0)
+    rspec-core (2.5.1)
+    rspec-expectations (2.5.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.5.0)
+    ruby-debug (0.10.4)
+      columnize (>= 0.1)
+      ruby-debug-base (~> 0.10.4.0)
+    ruby-debug-base (0.10.4-java)
+    rubyzip (0.9.4)
+    sinatra (1.2.1)
+      rack (~> 1.1)
+      tilt (>= 1.2.2, < 2.0)
+    test-unit (2.2.0)
+    thor (0.14.6)
+    tilt (1.2.2)
+    tzinfo (0.3.25)
+    warbler (1.2.1)
+      jruby-jars (>= 1.4.0)
+      jruby-rack (>= 1.0.0)
+      rake (>= 0.8.7)
+      rubyzip (>= 0.9.4)
+    will_paginate (3.0.pre2)
+
+PLATFORMS
+  java
+
+DEPENDENCIES
+  bcrypt-ruby
+  glassfish
+  json
+  neo4j (= 1.0.0)
+  rack
+  rack-test
+  rspec
+  ruby-debug
+  sinatra
+  test-unit
+  warbler
